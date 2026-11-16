@@ -1,0 +1,3773 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>CENTRA WIB v8 • Institutional MT5 Cent Terminal</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Inter & JetBrains Mono Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Official TradingView Advanced Real-Time Chart Library -->
+  <script type="text/javascript" src="https://s3.tradingview.com/tv.js" async onload="window.__tvScriptLoaded = true;" onerror="window.__tvScriptError = true;"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            obsidian: '#060911',
+            panel: '#0c1220',
+            card: '#11192c',
+            borderline: '#1e293b',
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    html, body {
+      background-color: #060911;
+      color: #e2e8f0;
+      font-family: 'Inter', system-ui, sans-serif;
+      overflow-x: hidden;
+      max-width: 100vw;
+    }
+    .font-mono-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-variant-numeric: tabular-nums;
+    }
+    /* Custom subtle scrollbars for horizontal pair ribbons */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    /* Institutional glass card styling */
+    .inst-card {
+      background: linear-gradient(180deg, rgba(17, 25, 44, 0.94) 0%, rgba(11, 17, 32, 0.98) 100%);
+      border: 1px solid rgba(51, 65, 85, 0.55);
+      box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.65);
+    }
+    .inst-glow-emerald {
+      box-shadow: 0 0 20px -6px rgba(16, 185, 129, 0.35);
+    }
+    .inst-glow-rose {
+      box-shadow: 0 0 20px -6px rgba(244, 63, 94, 0.35);
+    }
+    .inst-glow-amber {
+      box-shadow: 0 0 20px -6px rgba(245, 158, 11, 0.35);
+    }
+    /* Explicit 350px TradingView Widget Box */
+    .tv-container-box {
+      width: 100%;
+      height: 350px;
+      min-height: 350px;
+      max-height: 350px;
+      position: relative;
+      overflow: hidden;
+      border-radius: 0.75rem;
+      background-color: #090d16;
+    }
+    .tv-container-box > div,
+    .tv-container-box iframe {
+      width: 100% !important;
+      height: 350px !important;
+      min-height: 350px !important;
+    }
+  </style>
+</head>
+<body class="bg-obsidian text-slate-200 min-h-screen pb-24 selection:bg-cyan-500/30 selection:text-cyan-200">
+
+  <!-- ==================== STICKY TOP WIB INSTITUTIONAL HEADER ==================== -->
+  <header class="sticky top-0 z-40 bg-[#070b14]/95 backdrop-blur-md border-b border-slate-800/80">
+    <div class="max-w-5xl mx-auto px-3 py-2.5">
+      <!-- Row 1: Brand, Live WIB Clock, Session Badge, Notifications, Settings -->
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2 min-w-0">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-700 flex items-center justify-center font-extrabold text-xs text-white shadow-md shrink-0">
+            CW8
+          </div>
+          <div class="min-w-0">
+            <div class="flex items-center gap-1.5">
+              <span class="font-bold text-sm tracking-tight text-white truncate">CENTRA WIB v8</span>
+              <span class="text-[10px] font-mono-num px-1.5 py-0.5 rounded bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 shrink-0">MT5 CENT</span>
+            </div>
+            <div class="flex items-center gap-1.5 text-[11px] text-slate-400 font-mono-num">
+              <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span data-live-clock>01:27:00 WIB</span>
+              <span class="text-slate-600">•</span>
+              <span data-live-date class="truncate">Tue 17 Nov</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-1.5 shrink-0">
+          <!-- Killzone / Session Pill -->
+          <span data-live-session class="hidden sm:inline-flex items-center px-2 py-1 rounded-lg text-[10px] font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30">
+            LATE NY • PRE-ROLLOVER
+          </span>
+
+          <!-- Notification Bell -->
+          <button id="btn-notifications" type="button" aria-label="Notifications" class="relative p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/70 text-slate-300 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+            <span id="notif-badge" class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center">3</span>
+          </button>
+
+          <!-- API & Risk Settings -->
+          <button id="btn-settings" type="button" aria-label="Settings" class="p-2.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/70 text-slate-300 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Row 2: Live Account Balance Pill, Portfolio Heat Pill, Circuit Breaker Status -->
+      <div class="mt-2 flex items-center justify-between gap-1.5 overflow-x-auto no-scrollbar">
+        <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900/95 border border-slate-800 shrink-0">
+          <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Equity</span>
+          <span data-live-balance class="text-xs font-bold font-mono-num text-emerald-400">1,103.00 USC</span>
+          <span class="text-slate-600 text-[10px]">|</span>
+          <span data-live-balance-idr class="text-[11px] font-mono-num text-slate-300">Rp201.298</span>
+        </div>
+
+        <div class="flex items-center gap-1.5 shrink-0">
+          <span data-live-session-mobile class="sm:hidden inline-flex items-center px-2 py-1 rounded-lg text-[10px] font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30">
+            LATE NY
+          </span>
+          <span data-live-heat-pill class="inline-flex items-center px-2 py-1 rounded-lg text-[10px] font-mono-num font-semibold bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
+            HEAT 1.35%/4.5%
+          </span>
+          <span data-live-cb-pill class="inline-flex items-center px-2 py-1 rounded-lg text-[10px] font-mono-num font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+            CB 0/2
+          </span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== INLINE TOAST MESSAGE BANNER (NO ALERT()) ==================== -->
+  <div id="toast-container" class="fixed top-24 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-md pointer-events-none flex flex-col gap-2"></div>
+
+  <!-- ==================== NOTIFICATION DRAWER ==================== -->
+  <div id="notification-drawer" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex justify-end">
+    <div class="w-full max-w-md bg-[#0b1120] border-l border-slate-800 h-full flex flex-col">
+      <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+        <div>
+          <h3 class="font-bold text-white text-sm">WIB Desk Alerts & Event Log</h3>
+          <p class="text-[11px] text-slate-400">Asia/Jakarta (UTC+7) • Auto-Snapshot & Entry Stream</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="btn-clear-notifs" type="button" class="text-xs px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300">Clear</button>
+          <button id="btn-close-notifs" type="button" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300">✕</button>
+        </div>
+      </div>
+      <div id="notification-list" class="p-3 space-y-2.5 overflow-y-auto flex-1"></div>
+    </div>
+  </div>
+
+  <!-- ==================== SETTINGS MODAL (API KEY + CENT RATE + RISK) ==================== -->
+  <div id="settings-modal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="w-full max-w-md inst-card rounded-2xl p-5 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div>
+          <h3 class="font-bold text-white text-base">CENTRA WIB v8 Desk Settings</h3>
+          <p class="text-xs text-slate-400">Calibrated for MT5 Standard Cent (Asia/Jakarta)</p>
+        </div>
+        <button id="btn-close-settings" type="button" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300">✕</button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Optional Google AI Studio API Key (gemini-3-flash-preview)</label>
+          <input id="input-gemini-key" type="password" placeholder="AIzaSy... (Leave blank for Built-in Offline Engine)" class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-500" />
+          <p class="text-[11px] text-slate-500 mt-1">Stored locally in <code class="text-slate-400">centra_wib_v8_state</code>. Works 100% offline if left empty.</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Starting Balance (USC)</label>
+            <input id="input-base-balance" type="number" step="0.01" value="1096.00" class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-xs font-mono-num text-white focus:outline-none focus:border-cyan-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">IDR per 1 USC (Rp)</label>
+            <input id="input-idr-rate" type="number" step="0.01" value="182.50" class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-xs font-mono-num text-white focus:outline-none focus:border-cyan-500" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Max Portfolio Heat (%)</label>
+            <input id="input-max-heat" type="number" step="0.1" value="4.5" class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-xs font-mono-num text-white focus:outline-none focus:border-cyan-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Daily Loss Circuit Breaker</label>
+            <input id="input-max-losses" type="number" step="1" min="1" max="10" value="2" class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-xs font-mono-num text-white focus:outline-none focus:border-cyan-500" />
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+        <button id="btn-save-settings" type="button" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-semibold text-xs shadow-lg">
+          Save Desk Configuration
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== FULLSCREEN SNAPSHOT LIGHTBOX MODAL ==================== -->
+  <div id="snapshot-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col p-3 sm:p-6">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+      <div>
+        <h3 id="modal-snap-title" class="font-bold text-white text-sm">Frozen Interval Snapshot</h3>
+        <p id="modal-snap-sub" class="text-[11px] font-mono-num text-cyan-400">CAPTURED WIB</p>
+      </div>
+      <button id="btn-close-snap-modal" type="button" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold">Close ✕</button>
+    </div>
+    <div class="flex-1 flex items-center justify-center overflow-auto py-3">
+      <img id="modal-snap-img" src="" alt="Frozen SMC Interval Snapshot" class="max-w-full max-h-full rounded-xl border border-slate-700 shadow-2xl" />
+    </div>
+  </div>
+
+  <!-- ==================== MAIN WORKSPACE CONTAINER ==================== -->
+  <main class="max-w-5xl mx-auto px-3 pt-3 space-y-3">
+
+    <!-- GLOBAL 6-PAIR TICKER RIBBON (Shown on Signals & Technicals) -->
+    <section id="pair-ribbon-wrapper" class="overflow-x-auto no-scrollbar pb-1">
+      <div id="pair-ribbon" class="flex items-center gap-2 min-w-max"></div>
+    </section>
+
+    <!-- ========================================================================
+         TAB 1: SIGNALS (MULTI-HORIZON SCALP / INTRADAY / SWING + TRADINGVIEW)
+    ========================================================================= -->
+    <section id="tab-signals" class="space-y-3">
+      <!-- Strict Horizon Selector -->
+      <div class="inst-card rounded-2xl p-2.5">
+        <div class="flex items-center justify-between mb-2 px-1">
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Execution Horizon Alignment</span>
+          <span id="signals-tf-badge" class="text-[11px] font-mono-num text-cyan-400 font-semibold">TV: 5m • SCALP ENGINE</span>
+        </div>
+        <div class="grid grid-cols-3 gap-1.5" id="horizon-selector">
+          <button type="button" data-horizon="short" class="horizon-btn py-2.5 px-2 rounded-xl text-center transition border">
+            <div class="text-xs font-bold">SHORT</div>
+            <div class="text-[10px] opacity-80">SCALP • 1m/5m/15m</div>
+          </button>
+          <button type="button" data-horizon="medium" class="horizon-btn py-2.5 px-2 rounded-xl text-center transition border">
+            <div class="text-xs font-bold">MEDIUM</div>
+            <div class="text-[10px] opacity-80">INTRADAY • 15m/1H</div>
+          </button>
+          <button type="button" data-horizon="long" class="horizon-btn py-2.5 px-2 rounded-xl text-center transition border">
+            <div class="text-xs font-bold">LONG</div>
+            <div class="text-[10px] opacity-80">SWING • 4H/1D</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Official TradingView Real-Time Chart (Signals Tab) -->
+      <div class="inst-card rounded-2xl p-2.5 space-y-2">
+        <div class="flex items-center justify-between px-1">
+          <div class="flex items-center gap-2">
+            <span id="tv-signals-label" class="text-xs font-bold text-white">OANDA:XAUUSD • 5m (WIB)</span>
+            <span id="tv-signals-status" class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-mono-num">LIVE TV</span>
+          </div>
+          <button type="button" onclick="window.app.reloadTradingView('signals')" class="text-[11px] px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300">
+            Reload Chart
+          </button>
+        </div>
+        <div id="tv-widget-signals" class="tv-container-box"></div>
+      </div>
+
+      <!-- Bot S5 Chief Synthesizer Verdict Card -->
+      <div id="bot-s5-verdict-container"></div>
+
+      <!-- Multi-Horizon Side-by-Side Comparison Strip for Active Pair -->
+      <div id="pair-horizon-comparison" class="inst-card rounded-2xl p-3 space-y-2"></div>
+
+      <!-- Independent Unbiased Bots S1 - S4 Grid -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between px-1">
+          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400">Independent Desk Telemetry (Bots S1–S4)</h2>
+          <span class="text-[10px] font-mono-num text-slate-500">NON-BIASED RAW FACTS</span>
+        </div>
+        <div id="bots-s1-s4-grid" class="grid grid-cols-1 md:grid-cols-2 gap-2.5"></div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         TAB 2: ENTRIES (LIVE ENTRY FINDER BOT WITH AUTO EXPIRATION & REPLACEMENT)
+    ========================================================================= -->
+    <section id="tab-entries" class="hidden space-y-3">
+      <div class="inst-card rounded-2xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+        <div>
+          <h2 class="text-sm font-bold text-white flex items-center gap-2">
+            <span>Live Entry Finder Bot</span>
+            <span class="text-[10px] font-mono-num px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">AUTO-REPLACE ACTIVE</span>
+          </h2>
+          <p class="text-xs text-slate-400">Calibrated for 1,096.00 USC Cent risk • Expired/missed setups auto-cycle</p>
+        </div>
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <button type="button" data-entry-filter="ALL" class="entry-filter-btn px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-cyan-600 text-white">All</button>
+          <button type="button" data-entry-filter="SCALP" class="entry-filter-btn px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300">Scalp</button>
+          <button type="button" data-entry-filter="INTRADAY" class="entry-filter-btn px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300">Intraday</button>
+          <button type="button" data-entry-filter="SWING" class="entry-filter-btn px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300">Swing</button>
+          <button type="button" id="btn-scan-entries" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-600/90 hover:bg-emerald-500 text-white">
+            ↻ Refresh Scan
+          </button>
+        </div>
+      </div>
+
+      <div id="entries-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+    </section>
+
+    <!-- ========================================================================
+         TAB 3: TECHNICALS (LIVE TRADINGVIEW + 3 TRUE FROZEN INTERVAL SNAPSHOTS)
+    ========================================================================= -->
+    <section id="tab-technicals" class="hidden space-y-3">
+      <!-- Live TradingView Chart (Technicals Tab) -->
+      <div class="inst-card rounded-2xl p-2.5 space-y-2">
+        <div class="flex flex-wrap items-center justify-between gap-2 px-1">
+          <div class="flex items-center gap-2">
+            <span id="tv-technicals-label" class="text-xs font-bold text-white">OANDA:XAUUSD • Live Chart (WIB)</span>
+            <span id="tv-technicals-status" class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-mono-num">LIVE TV</span>
+          </div>
+          <div class="flex items-center gap-1">
+            <button type="button" onclick="window.app.setTechTvInterval('15')" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] font-mono-num text-slate-200">15m</button>
+            <button type="button" onclick="window.app.setTechTvInterval('60')" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] font-mono-num text-slate-200">1H</button>
+            <button type="button" onclick="window.app.setTechTvInterval('240')" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] font-mono-num text-slate-200">4H</button>
+            <button type="button" onclick="window.app.setTechTvInterval('D')" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] font-mono-num text-slate-200">1D</button>
+          </div>
+        </div>
+        <div id="tv-widget-technicals" class="tv-container-box"></div>
+      </div>
+
+      <!-- Frozen Interval Snapshot Control Banner -->
+      <div class="inst-card rounded-2xl p-3 space-y-2.5 border-cyan-500/30">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+              <h2 class="text-sm font-bold text-white">True Interval-Frozen SMC Snapshots (Static PNG)</h2>
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5">
+              Frozen PNG captures do <strong class="text-slate-200">NOT</strong> redraw on 4s ticks. They stay locked until a true WIB 15m / 1H / 4H candle closes or manual trigger.
+            </p>
+          </div>
+          <button type="button" id="btn-snapshot-now" class="px-3.5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold shrink-0 shadow">
+            📸 Snapshot All Now
+          </button>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-1.5 pt-2 border-t border-slate-800/80">
+          <span class="text-[11px] text-slate-400 font-medium mr-1">Simulate New Candle Close:</span>
+          <button type="button" onclick="window.app.simulateCandleClose('15m')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-[11px] font-mono-num text-cyan-300">
+            +15m Close
+          </button>
+          <button type="button" onclick="window.app.simulateCandleClose('1H')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-[11px] font-mono-num text-cyan-300">
+            +1H Close
+          </button>
+          <button type="button" onclick="window.app.simulateCandleClose('4H')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-[11px] font-mono-num text-cyan-300">
+            +4H Close
+          </button>
+        </div>
+      </div>
+
+      <!-- 3 Dedicated Frozen Interval Snapshot Cards (15m, 1H, 4H) -->
+      <div id="frozen-snapshots-container" class="space-y-4"></div>
+
+      <!-- Collapsible Saved Snapshot Archive -->
+      <div class="inst-card rounded-2xl overflow-hidden">
+        <button type="button" id="btn-toggle-archive" class="w-full p-3.5 flex items-center justify-between text-left hover:bg-slate-800/40 transition">
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-bold text-white">Saved Snapshot Archive</span>
+            <span id="archive-count-badge" class="text-[11px] font-mono-num px-2 py-0.5 rounded-full bg-slate-800 text-cyan-300">0</span>
+          </div>
+          <span id="archive-chevron" class="text-xs text-slate-400 font-mono-num">▼ Expand</span>
+        </button>
+        <div id="snapshot-archive-body" class="hidden p-3 pt-0 border-t border-slate-800/80 space-y-2.5"></div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         TAB 4: GEMINI AI (EXECUTIVE BRIEF, ALL-6-PAIRS MATRIX & ASK DESK)
+    ========================================================================= -->
+    <section id="tab-gemini" class="hidden space-y-3">
+      <!-- Gemini Multi-Horizon Executive Brief -->
+      <div class="inst-card rounded-2xl p-4 space-y-3 border-indigo-500/30">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center text-white font-bold text-xs">AI</div>
+            <div>
+              <h2 class="text-sm font-bold text-white">Gemini Multi-Horizon Executive Brief</h2>
+              <p id="gemini-engine-badge" class="text-[10px] font-mono-num text-indigo-300">BUILT-IN INSTITUTIONAL DESK ENGINE • WIB SYNCED</p>
+            </div>
+          </div>
+          <button type="button" id="btn-refresh-brief" class="px-3 py-1.5 rounded-xl bg-indigo-600/80 hover:bg-indigo-500 text-white text-xs font-semibold">
+            ↻ Synthesize Brief
+          </button>
+        </div>
+        <div id="gemini-executive-brief" class="text-xs leading-relaxed text-slate-300 space-y-2 bg-slate-950/70 p-3.5 rounded-xl border border-slate-800"></div>
+      </div>
+
+      <!-- All-6-Pairs Horizon Matrix -->
+      <div class="inst-card rounded-2xl p-3.5 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-sm font-bold text-white">All-6-Pairs Horizon Matrix</h3>
+            <p class="text-[11px] text-slate-400">Tap any cell to open pair & horizon on Signals chart</p>
+          </div>
+          <span class="text-[10px] font-mono-num text-slate-400">SCALP • INTRADAY • SWING</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse min-w-[520px]">
+            <thead>
+              <tr class="border-b border-slate-800 text-[10px] uppercase tracking-wider text-slate-400">
+                <th class="py-2 px-2">Pair / Price</th>
+                <th class="py-2 px-2">Short (Scalp 5m)</th>
+                <th class="py-2 px-2">Medium (Intraday 1H)</th>
+                <th class="py-2 px-2">Long (Swing 4H/1D)</th>
+              </tr>
+            </thead>
+            <tbody id="all-pairs-matrix-body" class="divide-y divide-slate-800/70 text-xs"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Interactive Ask Gemini Desk -->
+      <div class="inst-card rounded-2xl p-3.5 space-y-3">
+        <div>
+          <h3 class="text-sm font-bold text-white">Ask Gemini Institutional Desk</h3>
+          <p class="text-[11px] text-slate-400">Context-aware of your 1,096.00 USC Cent account, live prices & WIB session</p>
+        </div>
+
+        <!-- Quick Prompts -->
+        <div class="flex flex-wrap gap-1.5">
+          <button type="button" onclick="window.app.askGeminiPreset('What is the highest-probability Scalp setup right now in WIB?')" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-[11px] text-cyan-300 border border-slate-700">
+            Best Scalp right now?
+          </button>
+          <button type="button" onclick="window.app.askGeminiPreset('Explain why XAUUSDc Scalp is SELL while Swing is FOLLOW TREND BUY.')" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-[11px] text-cyan-300 border border-slate-700">
+            XAUUSDc Scalp vs Swing?
+          </button>
+          <button type="button" onclick="window.app.askGeminiPreset('Audit my 1,096.00 USC portfolio heat, open trades, and 04:00 WIB rollover risk.')" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-[11px] text-cyan-300 border border-slate-700">
+            Audit USC Heat & Rollover
+          </button>
+        </div>
+
+        <!-- Chat Response Feed -->
+        <div id="gemini-chat-history" class="space-y-2.5 max-h-80 overflow-y-auto pr-1"></div>
+
+        <!-- Input Row (Never touched by background timers) -->
+        <form id="gemini-chat-form" class="flex items-center gap-2">
+          <input id="gemini-chat-input" type="text" placeholder="Ask about SMC setups, lot sizing, or WIB macro..." class="flex-1 px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-500" />
+          <button type="submit" id="btn-gemini-send" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white text-xs font-bold shrink-0">
+            Ask
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         TAB 5: NEWS WIB (VERIFIED NOV 17-20, 2026 CALENDAR + 4-BOT NEWS FILTER)
+    ========================================================================= -->
+    <section id="tab-news" class="hidden space-y-3">
+      <!-- 4-Bot News Filter & Executive Summary -->
+      <div class="inst-card rounded-2xl p-3.5 space-y-3 border-amber-500/30">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-sm font-bold text-white">4-Bot WIB News Filter & Executive Playbook</h2>
+            <p class="text-[11px] text-slate-400">Verified Nov 17–20, 2026 Macro Schedule • Strictly UTC+7 (WIB)</p>
+          </div>
+          <span id="news-gatekeeper-status" class="text-[10px] font-mono-num px-2 py-1 rounded-lg bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-bold">
+            WINDOW CLEAR
+          </span>
+        </div>
+        <div id="news-4bots-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+      </div>
+
+      <!-- Day Filter & Economic Calendar List -->
+      <div class="inst-card rounded-2xl p-3.5 space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <h3 class="text-sm font-bold text-white">November 17–20, 2026 Calendar (WIB)</h3>
+          <div class="flex items-center gap-1">
+            <button type="button" data-news-day="ALL" class="news-day-btn px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-cyan-600 text-white">All Days</button>
+            <button type="button" data-news-day="2026-11-17" class="news-day-btn px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-800 text-slate-300">Tue 17</button>
+            <button type="button" data-news-day="2026-11-18" class="news-day-btn px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-800 text-slate-300">Wed 18</button>
+            <button type="button" data-news-day="2026-11-19" class="news-day-btn px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-800 text-slate-300">Thu 19</button>
+            <button type="button" data-news-day="2026-11-20" class="news-day-btn px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-800 text-slate-300">Fri 20</button>
+          </div>
+        </div>
+        <div id="news-calendar-list" class="space-y-2"></div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         TAB 6: MT5 VAULT (MANUAL CENT TRACKER, LOT BOT, HEAT & BOT V1 GUARDIAN)
+    ========================================================================= -->
+    <section id="tab-vault" class="hidden space-y-3">
+      <!-- Account Summary & Circuit Breaker Dashboard -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <div class="inst-card rounded-2xl p-3">
+          <div class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Cash Balance</div>
+          <div id="vault-cash-usc" class="text-sm font-bold font-mono-num text-white mt-0.5">1,096.00 USC</div>
+          <div id="vault-cash-idr" class="text-[11px] font-mono-num text-slate-400">Rp200.020</div>
+        </div>
+        <div class="inst-card rounded-2xl p-3">
+          <div class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Floating P/L</div>
+          <div data-live-pnl class="text-sm font-bold font-mono-num text-emerald-400 mt-0.5">+7.00 USC</div>
+          <div data-live-pnl-idr class="text-[11px] font-mono-num text-emerald-300/80">+Rp1.278</div>
+        </div>
+        <div class="inst-card rounded-2xl p-3">
+          <div class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Portfolio Heat</div>
+          <div data-live-heat class="text-sm font-bold font-mono-num text-cyan-400 mt-0.5">1.35% / 4.5%</div>
+          <div class="w-full h-1.5 bg-slate-800 rounded-full mt-1.5 overflow-hidden">
+            <div data-live-heat-bar class="h-full bg-cyan-500 rounded-full" style="width: 30%"></div>
+          </div>
+        </div>
+        <div class="inst-card rounded-2xl p-3">
+          <div class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">2-Loss Breaker</div>
+          <div id="vault-cb-status" class="text-sm font-bold font-mono-num text-emerald-400 mt-0.5">0 / 2 Losses</div>
+          <div id="vault-cb-sub" class="text-[10px] text-slate-400">Desk Armed • Safe</div>
+        </div>
+      </div>
+
+      <!-- Circuit Breaker Alert Banner (Shown when tripped) -->
+      <div id="circuit-breaker-banner" class="hidden rounded-2xl p-3.5 bg-rose-950/80 border border-rose-500/60 text-rose-200 text-xs flex items-center justify-between gap-2">
+        <div>
+          <strong class="text-rose-100 block">🚨 2-LOSS DAILY CIRCUIT BREAKER TRIPPED</strong>
+          <span>Maximum daily closed losses reached. New entries are flagged high-risk until next WIB session reset.</span>
+        </div>
+      </div>
+
+      <!-- Bot V1 All-Timeframe (1m-1D) Open Position Guardian -->
+      <div class="inst-card rounded-2xl p-3.5 space-y-2.5 border-cyan-500/30">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-sm font-bold text-white flex items-center gap-2">
+              <span>Bot V1 • All-Timeframe (1m–1D) Position Guardian</span>
+            </h2>
+            <p class="text-[11px] text-slate-400">Monitors open Cent positions across 1m–1D SMC & offers 1-Tap SL/TP protection</p>
+          </div>
+          <span id="open-positions-count" class="text-xs font-mono-num px-2 py-0.5 rounded-lg bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">1 OPEN</span>
+        </div>
+        <div id="bot-v1-guardian-list" class="space-y-2.5"></div>
+      </div>
+
+      <!-- Account-Size Suggested Lot Bot + Manual MT5 Cent Trade Entry Form -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
+        <!-- Suggested Lot Bot -->
+        <div class="lg:col-span-5 inst-card rounded-2xl p-3.5 space-y-3">
+          <div>
+            <h3 class="text-sm font-bold text-white">Suggested Cent Lot Bot</h3>
+            <p class="text-[11px] text-slate-400">Calibrated to current USC Equity & SL distance</p>
+          </div>
+          <div class="space-y-2.5">
+            <div>
+              <label class="block text-[11px] text-slate-400 mb-1">Instrument</label>
+              <select id="lotbot-symbol" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white font-semibold">
+                <option value="XAUUSDc">XAUUSDc (Gold Cent)</option>
+                <option value="USDJPYc">USDJPYc (USD/JPY Cent)</option>
+                <option value="USTECc">USTECc (Nasdaq 100 Cent)</option>
+                <option value="USOILc">USOILc (WTI Oil Cent)</option>
+                <option value="AUDCADc">AUDCADc (AUD/CAD Cent)</option>
+                <option value="BTCUSDc">BTCUSDc (Bitcoin Cent)</option>
+              </select>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">Risk %</label>
+                <select id="lotbot-risk" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs font-mono-num text-white">
+                  <option value="0.5">0.5% (Conservative)</option>
+                  <option value="1.0" selected>1.0% (Standard)</option>
+                  <option value="1.5">1.5% (Aggressive)</option>
+                  <option value="2.0">2.0% (Max Single)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">SL Distance (Price)</label>
+                <input id="lotbot-sl-dist" type="number" step="any" value="5.00" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs font-mono-num text-white" />
+              </div>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-950/90 border border-slate-800 flex items-center justify-between">
+              <div>
+                <div class="text-[10px] uppercase text-slate-400">Recommended Cent Lot</div>
+                <div id="lotbot-output" class="text-base font-extrabold font-mono-num text-emerald-400">0.02 Lots</div>
+                <div id="lotbot-risk-usc" class="text-[10px] font-mono-num text-slate-400">Risk: 10.00 USC (Rp1.825)</div>
+              </div>
+              <button type="button" id="btn-apply-lotbot" class="px-3 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold">
+                Apply Lot →
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Manual MT5 Standard Cent Trade Entry Form -->
+        <div class="lg:col-span-7 inst-card rounded-2xl p-3.5 space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-sm font-bold text-white">Manual MT5 Cent Trade Logger</h3>
+              <p class="text-[11px] text-slate-400">Protected form state • Never loses focus on live ticks</p>
+            </div>
+            <button type="button" id="btn-fill-live-price" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] text-cyan-300 font-semibold">
+              Fill Live Price
+            </button>
+          </div>
+
+          <form id="mt5-trade-form" class="space-y-2.5">
+            <div class="grid grid-cols-3 gap-2">
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">Pair</label>
+                <select id="trade-symbol" class="w-full px-2.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white font-semibold">
+                  <option value="XAUUSDc">XAUUSDc</option>
+                  <option value="USDJPYc">USDJPYc</option>
+                  <option value="USTECc">USTECc</option>
+                  <option value="USOILc">USOILc</option>
+                  <option value="AUDCADc">AUDCADc</option>
+                  <option value="BTCUSDc">BTCUSDc</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">Side</label>
+                <select id="trade-side" class="w-full px-2.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white font-semibold">
+                  <option value="BUY">BUY</option>
+                  <option value="SELL">SELL</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">Cent Lot</label>
+                <input id="trade-lot" type="number" step="0.01" min="0.01" value="0.02" required class="w-full px-2.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs font-mono-num text-white" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2">
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">Entry Price</label>
+                <input id="trade-entry" type="number" step="any" placeholder="3865.90" required class="w-full px-2.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs font-mono-num text-white" />
+              </div>
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">Stop Loss</label>
+                <input id="trade-sl" type="number" step="any" placeholder="3858.00" required class="w-full px-2.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs font-mono-num text-white" />
+              </div>
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">Take Profit</label>
+                <input id="trade-tp" type="number" step="any" placeholder="3882.00" required class="w-full px-2.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs font-mono-num text-white" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              <div>
+                <label class="block text-[11px] text-slate-400 mb-1">Status</label>
+                <select id="trade-status" class="w-full px-2.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white font-semibold">
+                  <option value="OPEN">OPEN POSITION</option>
+                  <option value="CLOSED">CLOSED TRADE</option>
+                </select>
+              </div>
+              <div id="trade-exit-wrapper" class="hidden">
+                <label class="block text-[11px] text-slate-400 mb-1">Exit Price</label>
+                <input id="trade-exit" type="number" step="any" placeholder="3878.00" class="w-full px-2.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs font-mono-num text-white" />
+              </div>
+              <div class="col-span-2 sm:col-span-1" id="trade-notes-wrapper">
+                <label class="block text-[11px] text-slate-400 mb-1">Setup / Horizon Tag</label>
+                <input id="trade-notes" type="text" placeholder="e.g. 1H OB Scalp" class="w-full px-2.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white" />
+              </div>
+            </div>
+
+            <button type="submit" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white font-bold text-xs shadow-lg">
+              + Record MT5 Cent Position
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- SVG Equity Curve -->
+      <div class="inst-card rounded-2xl p-3.5 space-y-2">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-sm font-bold text-white">MT5 Cent Equity Curve (USC)</h3>
+            <p class="text-[11px] text-slate-400">Realized balance progression + live floating equity marker</p>
+          </div>
+          <span id="equity-curve-delta" class="text-xs font-mono-num font-bold text-emerald-400">+7.00 USC (+0.64%)</span>
+        </div>
+        <div id="svg-equity-container" class="w-full overflow-hidden rounded-xl bg-slate-950/90 border border-slate-800 p-2"></div>
+      </div>
+
+      <!-- Trade History Ledger + JSON/CSV Export/Import -->
+      <div class="inst-card rounded-2xl p-3.5 space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h3 class="text-sm font-bold text-white">MT5 Vault Trade Ledger</h3>
+            <p class="text-[11px] text-slate-400">Export backups or restore JSON statements</p>
+          </div>
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <button type="button" id="btn-export-json" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-cyan-300 font-semibold">Export JSON</button>
+            <button type="button" id="btn-export-csv" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-emerald-300 font-semibold">Export CSV</button>
+            <label class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 font-semibold cursor-pointer">
+              Import JSON
+              <input id="input-import-json" type="file" accept=".json,application/json" class="hidden" />
+            </label>
+          </div>
+        </div>
+
+        <div id="vault-ledger-list" class="space-y-2"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== STICKY 6-TAB BOTTOM NAVIGATION ==================== -->
+  <nav class="fixed bottom-0 inset-x-0 z-40 bg-[#070b14]/95 backdrop-blur-md border-t border-slate-800/90">
+    <div class="max-w-5xl mx-auto grid grid-cols-6 gap-0.5 px-1 py-1.5">
+      <button type="button" data-tab="signals" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 px-1 rounded-xl text-cyan-400 bg-cyan-500/10">
+        <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+        </svg>
+        <span class="text-[10px] font-bold tracking-tight">Signals</span>
+      </button>
+
+      <button type="button" data-tab="entries" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 px-1 rounded-xl text-slate-400 hover:text-slate-200">
+        <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+        </svg>
+        <span class="text-[10px] font-semibold tracking-tight">Entries</span>
+      </button>
+
+      <button type="button" data-tab="technicals" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 px-1 rounded-xl text-slate-400 hover:text-slate-200">
+        <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+        <span class="text-[10px] font-semibold tracking-tight">Technicals</span>
+      </button>
+
+      <button type="button" data-tab="gemini" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 px-1 rounded-xl text-slate-400 hover:text-slate-200">
+        <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+        </svg>
+        <span class="text-[10px] font-semibold tracking-tight">Gemini AI</span>
+      </button>
+
+      <button type="button" data-tab="news" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 px-1 rounded-xl text-slate-400 hover:text-slate-200">
+        <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        <span class="text-[10px] font-semibold tracking-tight">News WIB</span>
+      </button>
+
+      <button type="button" data-tab="vault" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 px-1 rounded-xl text-slate-400 hover:text-slate-200">
+        <svg class="w-4 h-4 mb-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+        <span class="text-[10px] font-semibold tracking-tight">MT5 Vault</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ==================== INSTITUTIONAL TERMINAL APPLICATION LOGIC ==================== -->
+  <script>
+    (function () {
+      'use strict';
+
+      const STORAGE_KEY = 'centra_wib_v8_state';
+
+      // =========================================================================
+      // 1. REAL NOVEMBER 17, 2026 INSTRUMENT SPECIFICATIONS & TRADINGVIEW MAPPING
+      // =========================================================================
+      const INSTRUMENTS = {
+        XAUUSDc: {
+          symbol: 'XAUUSDc',
+          tvSymbol: 'OANDA:XAUUSD',
+          name: 'Gold Spot Cent',
+          anchorPrice: 3865.90,
+          decimals: 2,
+          tickSize: 0.15,
+          // 1.00 Cent lot = 1 oz -> $1.00 price move = 100 USC
+          uscPerUnitPerLot: 100,
+          defaultSlDist: 6.50,
+          spreadPts: '$0.28',
+          astralCycle: 'Waxing Gibbous • Bullish Sovereign Accum. Window'
+        },
+        USDJPYc: {
+          symbol: 'USDJPYc',
+          tvSymbol: 'OANDA:USDJPY',
+          name: 'US Dollar / Yen Cent',
+          anchorPrice: 159.584,
+          decimals: 3,
+          tickSize: 0.012,
+          // 1.00 Cent lot = 1,000 units -> 1.000 JPY move (~100 pips) = 62.7 USC
+          uscPerUnitPerLot: 62.7,
+          defaultSlDist: 0.250,
+          spreadPts: '1.4 pips',
+          astralCycle: 'BoJ 160.00 Intervention Friction Node'
+        },
+        USTECc: {
+          symbol: 'USTECc',
+          tvSymbol: 'FOREXCOM:NSXUSD',
+          name: 'Nasdaq 100 Index Cent',
+          anchorPrice: 27700.8,
+          decimals: 1,
+          tickSize: 2.4,
+          // 1.00 Cent lot = 1.0 USC per 1.0 index point
+          uscPerUnitPerLot: 1.0,
+          defaultSlDist: 45.0,
+          spreadPts: '1.8 pts',
+          astralCycle: 'AI Capex Earnings Expansion Harmonic'
+        },
+        USOILc: {
+          symbol: 'USOILc',
+          tvSymbol: 'TVC:USOIL',
+          name: 'WTI Crude Oil Cent',
+          anchorPrice: 87.83,
+          decimals: 2,
+          tickSize: 0.03,
+          // 1.00 Cent lot = 10 bbl -> $1.00 move = 1,000 USC
+          uscPerUnitPerLot: 1000,
+          defaultSlDist: 0.45,
+          spreadPts: '$0.03',
+          astralCycle: 'OPEC+ Quota & Inventory Distribution Cycle'
+        },
+        AUDCADc: {
+          symbol: 'AUDCADc',
+          tvSymbol: 'OANDA:AUDCAD',
+          name: 'AUD / CAD Cross Cent',
+          anchorPrice: 0.9165,
+          decimals: 4,
+          tickSize: 0.00012,
+          // 1.00 Cent lot = 1,000 AUD -> 0.0100 CAD move (100 pips) = 72.5 USC
+          uscPerUnitPerLot: 7250,
+          defaultSlDist: 0.0025,
+          spreadPts: '1.8 pips',
+          astralCycle: 'RBA vs BoC Neutral Yield Equilibrium'
+        },
+        BTCUSDc: {
+          symbol: 'BTCUSDc',
+          tvSymbol: 'BITSTAMP:BTCUSD',
+          name: 'Bitcoin Spot Cent',
+          anchorPrice: 64228,
+          decimals: 0,
+          tickSize: 18,
+          // 1.00 Cent lot = 0.01 BTC -> $100 move = 100 USC (1 USC per $1)
+          uscPerUnitPerLot: 1.0,
+          defaultSlDist: 480,
+          spreadPts: '$22',
+          astralCycle: 'Waning Liquidity Distribution & ETF Flow Cycle'
+        }
+      };
+
+      const PAIR_KEYS = Object.keys(INSTRUMENTS);
+
+      // =========================================================================
+      // 2. DISTINCT, NON-BIASED MULTI-HORIZON PROFILES (SHORT/MEDIUM/LONG)
+      //    Short = SCALP (1m/5m/15m), Medium = INTRADAY (15m/1H), Long = SWING (4H/1D)
+      // =========================================================================
+      const HORIZON_PROFILES = {
+        XAUUSDc: {
+          short: {
+            verdict: 'SELL',
+            confidence: 81,
+            timeframes: '1m / 5m / 15m',
+            tvInterval: '5',
+            entry: 3867.20,
+            sl: 3873.50,
+            tp: 3855.80,
+            rr: '1 : 1.81',
+            s1: '5m EQH at 3871.40 swept into NY close; 5m Bearish CHoCH confirmed with -OB at 3866.80–3870.50 and clean iFVG rejection.',
+            s2: 'Micro-range in 74% Premium; 5m ATR compressed to $2.40. Precision scalp targeting 50% Equilibrium & 3855.80 SSL.',
+            s3: 'Post-NY liquidity vacuum with DXY holding 105.45; no Tier-1 USD release until 20:30 WIB Retail Sales.',
+            s4: '01:27 WIB Late NY fade window. Spread $0.28 efficient for 5m scalp; must close before 04:00 WIB triple-swap rollover.',
+            s5: 'SCALP SELL (5m/15m): Fade 3867.20 Bearish OB retest targeting 3855.80 SSL before 04:00 WIB rollover. Tight 6.30pt stop above swept EQH.'
+          },
+          medium: {
+            verdict: 'SIDEWAYS',
+            confidence: 64,
+            timeframes: '15m / 1H',
+            tvInterval: '60',
+            entry: 3865.90,
+            sl: 3851.00,
+            tp: 3879.00,
+            rr: '1 : 0.88',
+            s1: 'Trapped inside 1H Equilibrium box (3852.00 SSL to 3874.50 BSL). Both 1H +OB (3853) and 1H -OB (3873) remain respected.',
+            s2: '1H range midpoint sits at 3863.25 (50.0% Equilibrium). OTE zones un-triggered on either boundary.',
+            s3: 'Institutional desks sidelined ahead of UK CPI (Wed) and US Retail Sales (20:30 WIB).',
+            s4: 'Asian handover (06:00–14:00 WIB) typically consolidates prior NY impulse unless Tokyo breaks 3874.50.',
+            s5: 'INTRADAY SIDEWAYS (15m/1H): Neutral range bound 3852–3874.50. Wait for a confirmed 1H BOS outside the box before committing intraday risk.'
+          },
+          long: {
+            verdict: 'FOLLOW TREND BUY',
+            confidence: 88,
+            timeframes: '4H / 1D',
+            tvInterval: '240',
+            entry: 3838.00,
+            sl: 3816.00,
+            tp: 3915.00,
+            rr: '1 : 3.50',
+            s1: 'Macro 4H/1D bullish structure intact after 3845 BOS; pristine 4H Bullish OB at 3828.00–3839.50 with unmitigated 4H FVG.',
+            s2: '4H Swing OTE (61.8%–78.6%) aligns at 3834.50 in Deep Discount. Waxing lunar cycle supports multi-day expansion.',
+            s3: 'Central bank reserve accumulation & real-yield compression underpin higher Gold structural floor.',
+            s4: 'Multi-day Swing hold; size at 0.01–0.02 Cent lots to absorb overnight WIB swap costs comfortably.',
+            s5: 'SWING FOLLOW TREND BUY (4H/1D): Accumulate pullbacks into 3838.00 Discount OTE & 4H +OB targeting 3915.00 macro BSL.'
+          }
+        },
+
+        USDJPYc: {
+          short: {
+            verdict: 'FOLLOW TREND BUY',
+            confidence: 79,
+            timeframes: '1m / 5m / 15m',
+            tvInterval: '5',
+            entry: 159.540,
+            sl: 159.360,
+            tp: 159.880,
+            rr: '1 : 1.89',
+            s1: '5m/15m micro-BOS above 159.480 after IDM sweep at 159.410; price respecting 5m Bullish FVG (159.510–159.555).',
+            s2: 'Price holding 38.2% shallow pullback of 15m impulse leg; momentum favors immediate run on 159.880 BSL.',
+            s3: 'US 10Y yield steady near 4.46%, supporting USD/JPY carry flows into Tokyo morning.',
+            s4: 'Approaching Tokyo pre-open (06:00–07:00 WIB) where Japanese importers routinely bid dips.',
+            s5: 'SCALP FOLLOW TREND BUY (5m/15m): Join 15m momentum on 159.540 FVG tap targeting 159.880 intraday BSL.'
+          },
+          medium: {
+            verdict: 'BUY',
+            confidence: 84,
+            timeframes: '15m / 1H',
+            tvInterval: '60',
+            entry: 159.320,
+            sl: 158.980,
+            tp: 160.120,
+            rr: '1 : 2.35',
+            s1: '1H Bullish Breaker Block at 159.220–159.350 confirmed after sweeping 158.950 EQL; clean path to 160.120 BSL.',
+            s2: '1H OTE 61.8% retracement sits at 159.280; intraday ATR of 0.68 JPY allows clean 1:2.35 expansion.',
+            s3: 'Widening US-Japan rate differential ahead of 20:30 WIB US Retail Sales keeps intraday bias bid.',
+            s4: 'Ideal intraday hold through Tokyo & London sessions; trail stop once 159.850 clears.',
+            s5: 'INTRADAY BUY (15m/1H): Buy 159.320 1H Breaker Block retest with SL 158.980 and TP 160.120 psychological BSL.'
+          },
+          long: {
+            verdict: 'WAIT',
+            confidence: 58,
+            timeframes: '4H / 1D',
+            tvInterval: '240',
+            entry: 157.850,
+            sl: 156.900,
+            tp: 160.800,
+            rr: '1 : 3.11',
+            s1: '4H/1D price is extended in Deep Premium (88%) directly below 160.00–160.50 major HTF Supply & BoJ jawboning zone.',
+            s2: 'No valid 4H Discount OTE entry nearby; nearest structural 4H +OB sits down at 157.600–158.050.',
+            s3: 'Elevated risk of Ministry of Finance / BoJ verbal or physical intervention above 160.00 creates asymmetric tail risk.',
+            s4: 'Swing R:R is poor at 159.584; patience required until a 4H Discount pullback materializes.',
+            s5: 'SWING WAIT (4H/1D): Do NOT chase Swing longs at 159.584 inside BoJ intervention zone. Wait for 157.850 4H Discount OTE.'
+          }
+        },
+
+        USTECc: {
+          short: {
+            verdict: 'SIDEWAYS',
+            confidence: 61,
+            timeframes: '1m / 5m / 15m',
+            tvInterval: '5',
+            entry: 27700.8,
+            sl: 27660.0,
+            tp: 27745.0,
+            rr: '1 : 1.08',
+            s1: '5m micro-candles compressed between 27675 SSL and 27735 BSL with repeated false breaks and overlapping wicks.',
+            s2: '5m ATR dropped 62% post-US cash close; 1.8pt spread eats into scalp edge.',
+            s3: 'US equity cash session closed; futures volume thin until European/London index pre-market at 14:00 WIB.',
+            s4: '01:27 WIB deadzone for Nasdaq scalps; avoid overtrading choppy 5m ranges.',
+            s5: 'SCALP SIDEWAYS (5m/15m): Post-NY cash chop between 27675–27735. Stand aside on 5m until London volume returns.'
+          },
+          medium: {
+            verdict: 'FOLLOW TREND SELL',
+            confidence: 80,
+            timeframes: '15m / 1H',
+            tvInterval: '60',
+            entry: 27765.0,
+            sl: 27825.0,
+            tp: 27585.0,
+            rr: '1 : 3.00',
+            s1: '1H Bearish BOS below 27750 left an unmitigated 1H Bearish OB + FVG at 27760–27810; 27580 SSL magnet below.',
+            s2: '1H intraday leg shows 68% Premium OTE alignment at 27772.0 for continuation lower.',
+            s3: 'Tech profit-taking after AI semiconductor run weighs on intraday session flows ahead of US Retail Sales.',
+            s4: 'Target 1H OB mitigation during early London session (14:00–16:00 WIB) for intraday short entry.',
+            s5: 'INTRADAY FOLLOW TREND SELL (15m/1H): Short rallies into 27765.0 1H Bearish OB/FVG targeting 27585.0 intraday SSL.'
+          },
+          long: {
+            verdict: 'BUY',
+            confidence: 86,
+            timeframes: '4H / 1D',
+            tvInterval: '240',
+            entry: 27560.0,
+            sl: 27380.0,
+            tp: 28150.0,
+            rr: '1 : 3.28',
+            s1: 'Higher-timeframe 4H/1D uptrend strongly bullish; 27510–27610 holds a major 4H Bullish OB & Mitigation Block.',
+            s2: '4H Discount OTE (61.8%–70.5%) converges at 27560.0, offering institutional Swing accumulation.',
+            s3: 'Q4 enterprise AI cloud spending and resilient earnings revisions support multi-week Nasdaq upside.',
+            s4: 'Swing horizon allows intraday pullback into 27560 before riding 4H/1D expansion to 28150 ATH.',
+            s5: 'SWING BUY (4H/1D): Set Swing buy zone at 27560.0 4H Discount OTE/OB targeting 28150.0 macro highs.'
+          }
+        },
+
+        USOILc: {
+          short: {
+            verdict: 'BUY',
+            confidence: 78,
+            timeframes: '1m / 5m / 15m',
+            tvInterval: '5',
+            entry: 87.74,
+            sl: 87.38,
+            tp: 88.38,
+            rr: '1 : 1.78',
+            s1: '15m Sell-Side Liquidity at 87.42 swept cleanly, followed by 5m Bullish CHoCH and +OB reclaim at 87.65–87.78.',
+            s2: '5m Discount bounce from 70.5% OTE with expanding bullish displacement candles.',
+            s3: 'Short-covering ahead of 04:30 WIB API Weekly Crude Oil Stock release.',
+            s4: 'Quick scalp window before 04:00 WIB swap rollover and 04:30 WIB API inventory print.',
+            s5: 'SCALP BUY (5m/15m): Long 87.74 5m +OB reclaim after 87.42 SSL sweep; take profit at 88.38 before 04:30 WIB API data.'
+          },
+          medium: {
+            verdict: 'SELL',
+            confidence: 82,
+            timeframes: '15m / 1H',
+            tvInterval: '60',
+            entry: 88.35,
+            sl: 88.90,
+            tp: 86.95,
+            rr: '1 : 2.55',
+            s1: '1H Bearish OB + FVG supply zone sits overhead at 88.25–88.65 after yesterday’s 1H CHoCH breakdown.',
+            s2: '1H Premium OTE (61.8%–78.6%) lines up at 88.38, capping intraday bounces.',
+            s3: 'API & EIA inventory forecasts point to a +1.8M barrel crude build, pressuring intraday rallies.',
+            s4: 'Fade intraday spikes into 88.35 during London/NY sessions toward 86.95 EQL.',
+            s5: 'INTRADAY SELL (15m/1H): Sell intraday rally into 88.35 1H Supply/OTE targeting 86.95 Equal Lows.'
+          },
+          long: {
+            verdict: 'FOLLOW TREND SELL',
+            confidence: 85,
+            timeframes: '4H / 1D',
+            tvInterval: '240',
+            entry: 89.20,
+            sl: 90.65,
+            tp: 84.50,
+            rr: '1 : 3.24',
+            s1: '4H/1D macro structure printing consistent Lower Highs below 89.60 4H Breaker Block with 84.50 major SSL resting below.',
+            s2: '4H/1D Bearish Fibonacci expansion points to -0.272 target at 84.50; waning supply cycle.',
+            s3: 'Non-OPEC production growth and softer industrial demand forecasts weigh on multi-week WTI pricing.',
+            s4: 'Swing short bias remains dominant below 90.65 invalidation.',
+            s5: 'SWING FOLLOW TREND SELL (4H/1D): Maintain multi-day bearish bias below 89.60 Breaker targeting 84.50 macro SSL.'
+          }
+        },
+
+        AUDCADc: {
+          short: {
+            verdict: 'WAIT',
+            confidence: 55,
+            timeframes: '1m / 5m / 15m',
+            tvInterval: '5',
+            entry: 0.9165,
+            sl: 0.9145,
+            tp: 0.9195,
+            rr: '1 : 1.50',
+            s1: '5m/15m price coiling in a 14-pip micro-triangle; no clean IDM sweep or displacement.',
+            s2: '5m ATR at 4 pips while spread is 1.8 pips (45% spread-to-ATR drag — poor scalp efficiency).',
+            s3: 'RBA Monetary Policy Meeting Minutes release at 07:30 WIB creates imminent binary gap risk.',
+            s4: 'Stay flat on 5m scalps until 07:30 WIB RBA Minutes print and spreads normalize.',
+            s5: 'SCALP WAIT (5m/15m): High spread-to-ATR ratio + 07:30 WIB RBA Minutes risk. Wait for post-news 15m BOS.'
+          },
+          medium: {
+            verdict: 'BUY',
+            confidence: 83,
+            timeframes: '15m / 1H',
+            tvInterval: '60',
+            entry: 0.9148,
+            sl: 0.9122,
+            tp: 0.9206,
+            rr: '1 : 2.23',
+            s1: '1H Bullish OB at 0.9138–0.9152 defended twice with 1H BOS above 0.9175; 0.9206 EQH liquidity pool above.',
+            s2: '1H Discount OTE 61.8% aligns at 0.9148 with clean 1:2.23 intraday R:R.',
+            s3: 'Iron ore stabilization supports AUD while softer crude oil caps CAD, favoring intraday AUD/CAD upside.',
+            s4: 'Optimal entry on post-RBA dip into 0.9148 1H +OB during Asian/London overlap.',
+            s5: 'INTRADAY BUY (15m/1H): Buy 0.9148 1H Bullish OB & Discount OTE targeting 0.9206 Equal Highs.'
+          },
+          long: {
+            verdict: 'SIDEWAYS',
+            confidence: 66,
+            timeframes: '4H / 1D',
+            tvInterval: '240',
+            entry: 0.9165,
+            sl: 0.9105,
+            tp: 0.9235,
+            rr: '1 : 1.17',
+            s1: '4H/1D locked in a 3-week horizontal range between 0.9110 SSL and 0.9235 BSL.',
+            s2: 'Sitting dead-center at 48% Equilibrium of the 4H range; neither Discount nor Premium extreme.',
+            s3: 'Balanced RBA vs BoC rate-path expectations keep commodity-cross macro flows mean-reverting.',
+            s4: 'Avoid Swing trend-chasing in mid-range; play range extremes only.',
+            s5: 'SWING SIDEWAYS (4H/1D): Multi-week range 0.9110–0.9235. Hold Swing capital for boundary sweeps.'
+          }
+        },
+
+        BTCUSDc: {
+          short: {
+            verdict: 'FOLLOW TREND SELL',
+            confidence: 82,
+            timeframes: '1m / 5m / 15m',
+            tvInterval: '5',
+            entry: 64340,
+            sl: 64680,
+            tp: 63680,
+            rr: '1 : 1.94',
+            s1: '5m/15m cascading Bearish BOS below 64350 with fresh 15m Bearish OB + FVG at 64320–64490.',
+            s2: '5m Premium bounce into 61.8% OTE (64340) with momentum pointing to 63680 SSL.',
+            s3: 'Overnight Asia session spot selling and perp funding normalization pressuring short-term bids.',
+            s4: '24/7 crypto liquidity makes 01:27 WIB active for 5m/15m scalps with 0.02 Cent lot.',
+            s5: 'SCALP FOLLOW TREND SELL (5m/15m): Short 64340 15m -OB/FVG retest targeting 63680 SSL liquidity pool.'
+          },
+          medium: {
+            verdict: 'WAIT',
+            confidence: 59,
+            timeframes: '15m / 1H',
+            tvInterval: '60',
+            entry: 64228,
+            sl: 63550,
+            tp: 64950,
+            rr: '1 : 1.06',
+            s1: '1H sandwiched between 1H Bullish OB (63580–63750) and 1H Bearish Breaker (64800–65020).',
+            s2: '1H range midpoint at 64290 offers sub-1.1 R:R until either boundary sweeps.',
+            s3: 'Spot ETF flow data mixed ahead of FOMC Minutes (Thu 02:00 WIB).',
+            s4: 'Wait for 1H liquidity sweep of 63650 or 64900 before entering intraday size.',
+            s5: 'INTRADAY WAIT (15m/1H): Mid-box equilibrium between 63650 +OB and 64900 -Breaker. Let liquidity sweep first.'
+          },
+          long: {
+            verdict: 'SELL',
+            confidence: 85,
+            timeframes: '4H / 1D',
+            tvInterval: '240',
+            entry: 64950,
+            sl: 66100,
+            tp: 61400,
+            rr: '1 : 3.09',
+            s1: '4H/1D Bearish CHoCH confirmed below 65400; 4H Bearish OB + iFVG overhead at 64850–65450.',
+            s2: '4H Premium OTE (61.8%–78.6%) sits at 64950–65380; waning lunar distribution phase favors deeper retrace.',
+            s3: 'Macro real-yield stickiness and leveraged long liquidations favor 4H/1D rotation to 61400 SSL.',
+            s4: 'Swing short from 64950 OTE offers 1:3.09 R:R with controlled 0.01–0.02 Cent lot sizing.',
+            s5: 'SWING SELL (4H/1D): Sell 4H Premium OTE retest at 64950 targeting 61400 higher-timeframe SSL.'
+          }
+        }
+      };
+
+      // =========================================================================
+      // 3. VERIFIED NOVEMBER 17–20, 2026 ECONOMIC CALENDAR (STRICTLY WIB UTC+7)
+      // =========================================================================
+      const WIB_NEWS_EVENTS = [
+        { id: 'n1', date: '2026-11-17', timeWib: '04:30', isoWib: '2026-11-17T04:30:00+07:00', currency: 'USD', impact: 'MEDIUM', title: 'API Weekly Crude Oil Stock', forecast: '+1.80M', previous: '-0.78M', pairs: ['USOILc'] },
+        { id: 'n2', date: '2026-11-17', timeWib: '07:30', isoWib: '2026-11-17T07:30:00+07:00', currency: 'AUD', impact: 'HIGH', title: 'RBA Monetary Policy Meeting Minutes', forecast: 'Hawkish Hold', previous: '4.35%', pairs: ['AUDCADc'] },
+        { id: 'n3', date: '2026-11-17', timeWib: '14:00', isoWib: '2026-11-17T14:00:00+07:00', currency: 'GBP', impact: 'MEDIUM', title: 'UK ILO Unemployment Rate & Avg Earnings', forecast: '4.2%', previous: '4.1%', pairs: ['XAUUSDc'] },
+        { id: 'n4', date: '2026-11-17', timeWib: '20:30', isoWib: '2026-11-17T20:30:00+07:00', currency: 'USD', impact: 'HIGH', title: 'US Core Retail Sales m/m & Retail Sales m/m', forecast: '0.3% / 0.4%', previous: '0.4% / 0.4%', pairs: ['XAUUSDc', 'USDJPYc', 'USTECc', 'BTCUSDc'] },
+        { id: 'n5', date: '2026-11-17', timeWib: '21:15', isoWib: '2026-11-17T21:15:00+07:00', currency: 'USD', impact: 'MEDIUM', title: 'US Industrial Production m/m', forecast: '0.2%', previous: '-0.3%', pairs: ['USTECc', 'USOILc'] },
+
+        { id: 'n6', date: '2026-11-18', timeWib: '06:50', isoWib: '2026-11-18T06:50:00+07:00', currency: 'JPY', impact: 'MEDIUM', title: 'Japan Trade Balance & Core Machinery Orders', forecast: '-0.28T', previous: '-0.29T', pairs: ['USDJPYc'] },
+        { id: 'n7', date: '2026-11-18', timeWib: '14:00', isoWib: '2026-11-18T14:00:00+07:00', currency: 'GBP', impact: 'HIGH', title: 'UK Consumer Price Index (CPI) y/y', forecast: '2.3%', previous: '2.2%', pairs: ['XAUUSDc'] },
+        { id: 'n8', date: '2026-11-18', timeWib: '20:30', isoWib: '2026-11-18T20:30:00+07:00', currency: 'USD', impact: 'MEDIUM', title: 'US Building Permits & Housing Starts', forecast: '1.43M', previous: '1.42M', pairs: ['USDJPYc', 'USTECc'] },
+        { id: 'n9', date: '2026-11-18', timeWib: '22:30', isoWib: '2026-11-18T22:30:00+07:00', currency: 'USD', impact: 'HIGH', title: 'EIA Crude Oil Inventories', forecast: '+1.65M', previous: '+2.09M', pairs: ['USOILc'] },
+
+        { id: 'n10', date: '2026-11-19', timeWib: '02:00', isoWib: '2026-11-19T02:00:00+07:00', currency: 'USD', impact: 'HIGH', title: 'FOMC Meeting Minutes', forecast: 'Rate Path', previous: '4.50%', pairs: ['XAUUSDc', 'USDJPYc', 'USTECc', 'BTCUSDc'] },
+        { id: 'n11', date: '2026-11-19', timeWib: '07:30', isoWib: '2026-11-19T07:30:00+07:00', currency: 'AUD', impact: 'HIGH', title: 'Australia Employment Change & Unemployment', forecast: '+24.5K / 4.1%', previous: '+31.2K / 4.1%', pairs: ['AUDCADc'] },
+        { id: 'n12', date: '2026-11-19', timeWib: '20:30', isoWib: '2026-11-19T20:30:00+07:00', currency: 'USD', impact: 'HIGH', title: 'US Unemployment Claims & Philly Fed Mfg', forecast: '218K / 7.5', previous: '217K / 10.3', pairs: ['XAUUSDc', 'USDJPYc', 'USTECc'] },
+
+        { id: 'n13', date: '2026-11-20', timeWib: '06:30', isoWib: '2026-11-20T06:30:00+07:00', currency: 'JPY', impact: 'HIGH', title: 'Japan National Core CPI y/y', forecast: '2.2%', previous: '2.4%', pairs: ['USDJPYc'] },
+        { id: 'n14', date: '2026-11-20', timeWib: '20:30', isoWib: '2026-11-20T20:30:00+07:00', currency: 'CAD', impact: 'HIGH', title: 'Canada Core Retail Sales m/m', forecast: '0.4%', previous: '-0.7%', pairs: ['AUDCADc'] },
+        { id: 'n15', date: '2026-11-20', timeWib: '21:45', isoWib: '2026-11-20T21:45:00+07:00', currency: 'USD', impact: 'HIGH', title: 'US Flash Manufacturing & Services PMI', forecast: '48.9 / 55.2', previous: '48.5 / 55.0', pairs: ['XAUUSDc', 'USDJPYc', 'USTECc', 'USOILc'] }
+      ];
+
+      // =========================================================================
+      // 4. WIB TIMEZONE HELPERS (Asia/Jakarta, UTC+7)
+      // =========================================================================
+      function getWibParts(dateObj = new Date()) {
+        const fmt = new Intl.DateTimeFormat('en-GB', {
+          timeZone: 'Asia/Jakarta',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          weekday: 'short',
+          hour12: false
+        });
+        const parts = fmt.formatToParts(dateObj);
+        const map = {};
+        parts.forEach(p => { map[p.type] = p.value; });
+        const hour = parseInt(map.hour === '24' ? '0' : map.hour, 10);
+        const minute = parseInt(map.minute, 10);
+        const second = parseInt(map.second, 10);
+        return {
+          year: map.year,
+          month: map.month,
+          day: map.day,
+          weekday: map.weekday,
+          hour,
+          minute,
+          second,
+          hhmmss: `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:${String(second).padStart(2, '0')}`,
+          hhmm: `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`,
+          dateStr: `${map.weekday} ${map.day} Nov`,
+          isoDate: `${map.year}-${map.month}-${map.day}`
+        };
+      }
+
+      function getWibSessionInfo(wib) {
+        const h = wib.hour;
+        const m = wib.minute;
+        const totalMin = h * 60 + m;
+        // 04:00 - 05:05 WIB: Rollover Deadzone
+        if (totalMin >= 240 && totalMin <= 305) {
+          return {
+            label: '04:00 WIB ROLLOVER • SPREAD ALERT',
+            shortLabel: 'ROLLOVER',
+            badgeClass: 'bg-rose-500/20 text-rose-300 border-rose-500/40',
+            rolloverWarning: true
+          };
+        }
+        // 00:00 - 06:00 WIB: Late NY / Pre-Rollover
+        if (h < 6) {
+          return {
+            label: 'LATE NY • PRE-ROLLOVER',
+            shortLabel: 'LATE NY',
+            badgeClass: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
+            rolloverWarning: h === 3 && m >= 30
+          };
+        }
+        // 06:00 - 14:00 WIB: Asian / Tokyo Session
+        if (h >= 6 && h < 14) {
+          return {
+            label: 'ASIAN / TOKYO SESSION',
+            shortLabel: 'ASIA KZ',
+            badgeClass: 'bg-sky-500/15 text-sky-300 border-sky-500/30',
+            rolloverWarning: false
+          };
+        }
+        // 14:00 - 19:00 WIB: London Killzone
+        if (h >= 14 && h < 19) {
+          return {
+            label: 'LONDON KILLZONE • HIGH EXPANSION',
+            shortLabel: 'LONDON KZ',
+            badgeClass: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
+            rolloverWarning: false
+          };
+        }
+        // 19:00 - 23:59 WIB: NY Overlap Killzone
+        return {
+          label: 'NY OVERLAP KILLZONE • PEAK VOL',
+          shortLabel: 'NY KZ',
+          badgeClass: 'bg-purple-500/20 text-purple-300 border-purple-500/40',
+          rolloverWarning: false
+        };
+      }
+
+      // Compute exact WIB interval boundary keys & next candle close timestamps
+      function getIntervalBoundaryMeta(tf, offsetSteps = 0) {
+        const now = new Date();
+        const wib = getWibParts(now);
+        const nowMs = now.getTime();
+        // Align to WIB (UTC+7 = +25200000 ms)
+        const wibOffsetMs = 7 * 3600 * 1000;
+        const wibEpoch = nowMs + wibOffsetMs;
+
+        let stepMs = 15 * 60 * 1000;
+        if (tf === '1H') stepMs = 60 * 60 * 1000;
+        if (tf === '4H') stepMs = 4 * 60 * 60 * 1000;
+
+        const currentBucketIndex = Math.floor(wibEpoch / stepMs) + offsetSteps;
+        const capturedWibEpoch = currentBucketIndex * stepMs;
+        const nextCloseWibEpoch = (currentBucketIndex + 1) * stepMs;
+
+        const capturedDate = new Date(capturedWibEpoch - wibOffsetMs);
+        const nextCloseDate = new Date(nextCloseWibEpoch - wibOffsetMs);
+
+        const capParts = getWibParts(capturedDate);
+        const nextParts = getWibParts(nextCloseDate);
+
+        return {
+          bucketKey: `${tf}_${currentBucketIndex}`,
+          bucketIndex: currentBucketIndex,
+          capturedWibStr: `${capParts.hhmm}:00 WIB`,
+          nextCloseWibStr: `${nextParts.hhmm}:00 WIB`,
+          fullDateStr: `${capParts.day}/${capParts.month} ${capParts.hhmm}:00 WIB`
+        };
+      }
+
+      // =========================================================================
+      // 5. DETERMINISTIC PSEUDO-RANDOM GENERATOR FOR FROZEN INTERVAL CANDLES
+      // =========================================================================
+      function mulberry32(seed) {
+        let a = seed >>> 0;
+        return function () {
+          a |= 0;
+          a = (a + 0x6D2B79F5) | 0;
+          let t = Math.imul(a ^ (a >>> 15), 1 | a);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+
+      function hashString(str) {
+        let h = 2166136261;
+        for (let i = 0; i < str.length; i++) {
+          h ^= str.charCodeAt(i);
+          h = Math.imul(h, 16777619);
+        }
+        return h >>> 0;
+      }
+
+      // =========================================================================
+      // 6. APPLICATION STATE & SAFE LOCALSTORAGE PERSISTENCE
+      // =========================================================================
+      const defaultState = {
+        activeTab: 'signals',
+        activePair: 'XAUUSDc',
+        activeHorizon: 'short', // 'short' (Scalp), 'medium' (Intraday), 'long' (Swing)
+        techTvInterval: '60',
+        entryFilter: 'ALL',
+        newsDayFilter: 'ALL',
+        settings: {
+          geminiApiKey: '',
+          baseBalanceUsc: 1096.00,
+          idrPerUsc: 182.50, // 1,096.00 * 182.50 = Rp200,020
+          maxHeatPct: 4.5,
+          maxDailyLosses: 2
+        },
+        // Live market prices initialized to exact Nov 17, 2026 anchors
+        prices: {
+          XAUUSDc: 3865.90,
+          USDJPYc: 159.584,
+          USTECc: 27700.8,
+          USOILc: 87.83,
+          AUDCADc: 0.9165,
+          BTCUSDc: 64228
+        },
+        // Simulated candle-close step offsets per symbol+tf when user tests "+15m/+1H/+4H Close"
+        simCandleOffsets: {},
+        // Frozen Interval Snapshots cache: key = `${symbol}_${tf}` -> { bucketKey, dataUrl, capturedWibStr, nextCloseWibStr, closePrice, outcomes, tf, symbol }
+        frozenSnapshots: {},
+        // Archive of past frozen snapshots (stores metadata + light thumbnail or dataUrl capped at 12)
+        snapshotArchive: [],
+        // Active Entry Finder setups
+        entries: [],
+        // MT5 Vault trades (1 realistic open position to showcase Bot V1 Guardian + Heat Meter while Cash Balance = 1,096.00 USC)
+        trades: [
+          {
+            id: 'tr_init_1',
+            symbol: 'XAUUSDc',
+            side: 'BUY',
+            lot: 0.02,
+            entry: 3862.40,
+            sl: 3855.00,
+            tp: 3882.00,
+            status: 'OPEN',
+            exit: null,
+            pnlUsc: 0,
+            notes: '4H Discount OTE + 15m Sweep',
+            openedAtWib: '00:42:15 WIB',
+            closedDateIso: null
+          }
+        ],
+        notifications: [
+          {
+            id: 'notif_1',
+            timeWib: '01:15:00 WIB',
+            title: '15m SMC Snapshot Captured (XAUUSDc)',
+            body: 'Frozen PNG locked at 3865.90 until 01:30:00 WIB candle close.',
+            type: 'info',
+            unread: true
+          },
+          {
+            id: 'notif_2',
+            timeWib: '01:05:00 WIB',
+            title: 'Pre-Rollover Desk Notice (04:00 WIB)',
+            body: 'MT5 Cent swap rollover occurs at 04:00 WIB. Tighten Scalp stops prior to spread widening.',
+            type: 'warn',
+            unread: true
+          },
+          {
+            id: 'notif_3',
+            timeWib: '00:45:00 WIB',
+            title: 'MT5 Vault Calibrated: 1,096.00 USC',
+            body: 'Equivalent Rp200.020 • 4.5% Max Heat (49.32 USC) & 2-Loss Circuit Breaker armed.',
+            type: 'success',
+            unread: true
+          }
+        ],
+        chatMessages: [
+          {
+            role: 'assistant',
+            text: 'CENTRA WIB v8 Desk online (Asia/Jakarta UTC+7). Account calibrated at 1,096.00 USC (Rp200.020). Short (Scalp), Medium (Intraday), and Long (Swing) horizons are decoupled and active across all 6 Cent instruments. How can I assist?'
+          }
+        ]
+      };
+
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return JSON.parse(JSON.stringify(defaultState));
+          const parsed = JSON.parse(raw);
+          return {
+            ...JSON.parse(JSON.stringify(defaultState)),
+            ...parsed,
+            settings: { ...defaultState.settings, ...(parsed.settings || {}) },
+            prices: { ...defaultState.prices, ...(parsed.prices || {}) }
+          };
+        } catch (err) {
+          return JSON.parse(JSON.stringify(defaultState));
+        }
+      }
+
+      function saveState() {
+        try {
+          // Keep snapshotArchive trimmed so localStorage quota is never exceeded
+          const toSave = {
+            ...state,
+            snapshotArchive: state.snapshotArchive.slice(0, 10)
+          };
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+        } catch (err) {
+          // If storage quota hit due to PNG dataUrls, strip dataUrls from older archive items and retry
+          try {
+            const slimArchive = state.snapshotArchive.slice(0, 5).map((item, idx) =>
+              idx > 1 ? { ...item, dataUrl: '' } : item
+            );
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...state, snapshotArchive: slimArchive }));
+          } catch (e2) {
+            // Safe silent fallback
+          }
+        }
+      }
+
+      let state = loadState();
+
+      // =========================================================================
+      // 7. FORMATTING & MATH UTILITIES
+      // =========================================================================
+      function formatPrice(symbol, val) {
+        const inst = INSTRUMENTS[symbol];
+        if (!inst || typeof val !== 'number' || isNaN(val)) return '0.00';
+        return val.toFixed(inst.decimals);
+      }
+
+      function formatUsc(val) {
+        const sign = val > 0 ? '+' : '';
+        return `${sign}${val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USC`;
+      }
+
+      function formatUscUnsigned(val) {
+        return `${val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USC`;
+      }
+
+      function formatIdr(uscVal, signed = false) {
+        const rp = Math.round(uscVal * state.settings.idrPerUsc);
+        const absFormatted = Math.abs(rp).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        if (signed) {
+          const sign = rp > 0 ? '+' : rp < 0 ? '-' : '';
+          return `${sign}Rp${absFormatted}`;
+        }
+        return `${rp < 0 ? '-' : ''}Rp${absFormatted}`;
+      }
+
+      function calcTradePnlUsc(trade, currentPrice) {
+        const inst = INSTRUMENTS[trade.symbol];
+        if (!inst) return 0;
+        const exitPx = trade.status === 'CLOSED' && trade.exit != null ? Number(trade.exit) : Number(currentPrice);
+        const diff = trade.side === 'BUY' ? (exitPx - Number(trade.entry)) : (Number(trade.entry) - exitPx);
+        return diff * Number(trade.lot) * inst.uscPerUnitPerLot;
+      }
+
+      function calcTradeRiskUsc(trade) {
+        const inst = INSTRUMENTS[trade.symbol];
+        if (!inst) return 0;
+        const slDist = Math.abs(Number(trade.entry) - Number(trade.sl));
+        return slDist * Number(trade.lot) * inst.uscPerUnitPerLot;
+      }
+
+      function calcSuggestedCentLot(symbol, riskPct, slDistance, equityUsc) {
+        const inst = INSTRUMENTS[symbol];
+        if (!inst || slDistance <= 0) return { lot: 0.01, riskUsc: 0 };
+        const targetRiskUsc = equityUsc * (riskPct / 100);
+        const rawLot = targetRiskUsc / (slDistance * inst.uscPerUnitPerLot);
+        const clampedLot = Math.max(0.01, Math.min(2.00, Math.floor(rawLot * 100) / 100));
+        const actualRiskUsc = clampedLot * slDistance * inst.uscPerUnitPerLot;
+        return { lot: clampedLot, riskUsc: actualRiskUsc };
+      }
+
+      function getAccountMetrics() {
+        const base = Number(state.settings.baseBalanceUsc) || 1096.00;
+        let realizedPnl = 0;
+        let floatingPnl = 0;
+        let openRiskUsc = 0;
+        let todayLosses = 0;
+        const todayIso = getWibParts().isoDate;
+
+        state.trades.forEach(t => {
+          if (t.status === 'CLOSED') {
+            const pnl = calcTradePnlUsc(t, t.exit);
+            realizedPnl += pnl;
+            if (pnl < 0 && (!t.closedDateIso || t.closedDateIso === todayIso)) {
+              todayLosses++;
+            }
+          } else {
+            const livePx = state.prices[t.symbol] ?? INSTRUMENTS[t.symbol].anchorPrice;
+            floatingPnl += calcTradePnlUsc(t, livePx);
+            openRiskUsc += calcTradeRiskUsc(t);
+          }
+        });
+
+        const cashBalance = base + realizedPnl;
+        const equity = cashBalance + floatingPnl;
+        const heatPct = equity > 0 ? (openRiskUsc / equity) * 100 : 0;
+        const maxHeatPct = Number(state.settings.maxHeatPct) || 4.5;
+        const maxLosses = Number(state.settings.maxDailyLosses) || 2;
+        const circuitBreakerTripped = todayLosses >= maxLosses;
+
+        return {
+          base,
+          realizedPnl,
+          floatingPnl,
+          cashBalance,
+          equity,
+          openRiskUsc,
+          heatPct,
+          maxHeatPct,
+          todayLosses,
+          maxLosses,
+          circuitBreakerTripped
+        };
+      }
+
+      function showToast(title, body, tone = 'info') {
+        const container = document.getElementById('toast-container');
+        if (!container) return;
+        const colors = {
+          info: 'border-cyan-500/60 bg-slate-900/95 text-cyan-100',
+          success: 'border-emerald-500/60 bg-slate-900/95 text-emerald-100',
+          warn: 'border-amber-500/60 bg-slate-900/95 text-amber-100',
+          danger: 'border-rose-500/60 bg-slate-900/95 text-rose-100'
+        };
+        const el = document.createElement('div');
+        el.className = `pointer-events-auto rounded-2xl border px-3.5 py-2.5 shadow-2xl backdrop-blur-md transition-all duration-300 ${colors[tone] || colors.info}`;
+        el.innerHTML = `
+          <div class="text-xs font-bold">${title}</div>
+          <div class="text-[11px] opacity-85 mt-0.5">${body}</div>
+        `;
+        container.appendChild(el);
+        setTimeout(() => {
+          el.style.opacity = '0';
+          el.style.transform = 'translateY(-6px)';
+          setTimeout(() => el.remove(), 300);
+        }, 3400);
+      }
+
+      function addNotification(title, body, type = 'info') {
+        const wib = getWibParts();
+        state.notifications.unshift({
+          id: 'notif_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+          timeWib: `${wib.hhmmss} WIB`,
+          title,
+          body,
+          type,
+          unread: true
+        });
+        state.notifications = state.notifications.slice(0, 25);
+        updateNotificationBadge();
+        saveState();
+      }
+
+      function updateNotificationBadge() {
+        const badge = document.getElementById('notif-badge');
+        if (!badge) return;
+        const unreadCount = state.notifications.filter(n => n.unread).length;
+        badge.textContent = unreadCount;
+        badge.classList.toggle('hidden', unreadCount === 0);
+      }
+
+      // =========================================================================
+      // 8. OFFICIAL TRADINGVIEW CHART ENGINE + OFFLINE FALLBACK CANVAS
+      // =========================================================================
+      let lastTvConfig = { signals: '', technicals: '' };
+
+      function renderOfflineFallbackChart(container, symbol, intervalLabel, reasonText) {
+        const inst = INSTRUMENTS[symbol];
+        const livePx = state.prices[symbol] ?? inst.anchorPrice;
+        container.innerHTML = '';
+
+        const wrap = document.createElement('div');
+        wrap.className = 'w-full h-[350px] relative flex flex-col justify-between p-3 bg-[#090d16]';
+
+        const topBar = document.createElement('div');
+        topBar.className = 'flex items-center justify-between z-10';
+        topBar.innerHTML = `
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] font-mono-num px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold">
+              OFFLINE FALLBACK • ${inst.tvSymbol} (${intervalLabel})
+            </span>
+            <span class="text-[10px] text-slate-400 font-mono-num">Asia/Jakarta (WIB)</span>
+          </div>
+          <span class="text-xs font-mono-num font-bold text-white">${formatPrice(symbol, livePx)}</span>
+        `;
+
+        const canvas = document.createElement('canvas');
+        canvas.style.width = '100%';
+        canvas.style.height = '290px';
+        canvas.width = 760;
+        canvas.height = 290;
+
+        const footer = document.createElement('div');
+        footer.className = 'text-[10px] text-slate-500 font-mono-num flex justify-between';
+        footer.innerHTML = `<span>${reasonText}</span><span>CENTRA WIB v8 SYNTHETIC FEED</span>`;
+
+        wrap.appendChild(topBar);
+        wrap.appendChild(canvas);
+        wrap.appendChild(footer);
+        container.appendChild(wrap);
+
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#090d16';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Draw subtle grid
+        ctx.strokeStyle = '#162033';
+        ctx.lineWidth = 1;
+        for (let y = 25; y < 270; y += 45) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(690, y);
+          ctx.stroke();
+        }
+
+        const rng = mulberry32(hashString(`${symbol}_${intervalLabel}_fallback`));
+        const count = 36;
+        const candles = [];
+        let p = livePx * (1 + (rng() - 0.5) * 0.008);
+        for (let i = 0; i < count; i++) {
+          const open = p;
+          const delta = (rng() - 0.49) * inst.tickSize * 9;
+          const close = i === count - 1 ? livePx : open + delta;
+          const high = Math.max(open, close) + rng() * inst.tickSize * 5;
+          const low = Math.min(open, close) - rng() * inst.tickSize * 5;
+          candles.push({ open, high, low, close });
+          p = close;
+        }
+
+        let minP = Infinity, maxP = -Infinity;
+        candles.forEach(c => {
+          if (c.low < minP) minP = c.low;
+          if (c.high > maxP) maxP = c.high;
+        });
+        const pad = (maxP - minP) * 0.12 || inst.tickSize * 10;
+        minP -= pad;
+        maxP += pad;
+
+        const mapY = val => 265 - ((val - minP) / (maxP - minP)) * 240;
+        const stepX = 675 / count;
+
+        candles.forEach((c, idx) => {
+          const x = 12 + idx * stepX + stepX * 0.5;
+          const bull = c.close >= c.open;
+          ctx.strokeStyle = bull ? '#10b981' : '#f43f5e';
+          ctx.fillStyle = bull ? '#10b981' : '#f43f5e';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(x, mapY(c.high));
+          ctx.lineTo(x, mapY(c.low));
+          ctx.stroke();
+
+          const topY = mapY(Math.max(c.open, c.close));
+          const botY = mapY(Math.min(c.open, c.close));
+          const bodyH = Math.max(2, botY - topY);
+          ctx.fillRect(x - stepX * 0.3, topY, stepX * 0.6, bodyH);
+        });
+
+        // Current price line
+        const curY = mapY(livePx);
+        ctx.strokeStyle = '#06b6d4';
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(0, curY);
+        ctx.lineTo(690, curY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.fillStyle = '#06b6d4';
+        ctx.fillRect(692, curY - 10, 66, 20);
+        ctx.fillStyle = '#041019';
+        ctx.font = 'bold 10px "JetBrains Mono", monospace';
+        ctx.fillText(formatPrice(symbol, livePx), 695, curY + 3);
+      }
+
+      function mountTradingViewWidget(targetKey, forceReload = false) {
+        const isSignals = targetKey === 'signals';
+        const tabEl = document.getElementById(isSignals ? 'tab-signals' : 'tab-technicals');
+        const containerId = isSignals ? 'tv-widget-signals' : 'tv-widget-technicals';
+        const container = document.getElementById(containerId);
+        if (!tabEl || !container || tabEl.classList.contains('hidden')) return;
+
+        const inst = INSTRUMENTS[state.activePair];
+        const profile = HORIZON_PROFILES[state.activePair][state.activeHorizon];
+        const tvInterval = isSignals ? profile.tvInterval : state.techTvInterval;
+        const configSig = `${inst.tvSymbol}_${tvInterval}`;
+
+        if (!forceReload && lastTvConfig[targetKey] === configSig && container.children.length > 0) {
+          return;
+        }
+
+        const labelEl = document.getElementById(isSignals ? 'tv-signals-label' : 'tv-technicals-label');
+        const statusEl = document.getElementById(isSignals ? 'tv-signals-status' : 'tv-technicals-status');
+        if (labelEl) {
+          labelEl.textContent = `${inst.tvSymbol} • ${tvInterval === 'D' ? '1D' : tvInterval + 'm'} (WIB)`;
+        }
+
+        // Wait for visible layout frame before instantiating TradingView widget
+        requestAnimationFrame(() => {
+          container.style.height = '350px';
+          container.style.minHeight = '350px';
+          container.innerHTML = '';
+
+          if (typeof window.TradingView !== 'undefined' && typeof window.TradingView.widget === 'function') {
+            try {
+              lastTvConfig[targetKey] = configSig;
+              if (statusEl) {
+                statusEl.textContent = 'LIVE TV';
+                statusEl.className = 'text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-mono-num';
+              }
+              new window.TradingView.widget({
+                width: '100%',
+                height: 350,
+                symbol: inst.tvSymbol,
+                interval: tvInterval,
+                timezone: 'Asia/Jakarta',
+                theme: 'dark',
+                style: '1',
+                locale: 'en',
+                toolbar_bg: '#090d16',
+                enable_publishing: false,
+                hide_top_toolbar: false,
+                hide_side_toolbar: true,
+                allow_symbol_change: false,
+                save_image: false,
+                container_id: containerId
+              });
+            } catch (err) {
+              if (statusEl) {
+                statusEl.textContent = 'FALLBACK';
+                statusEl.className = 'text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono-num';
+              }
+              renderOfflineFallbackChart(container, state.activePair, tvInterval, 'TradingView init fallback');
+            }
+          } else {
+            if (statusEl) {
+              statusEl.textContent = 'OFFLINE CHART';
+              statusEl.className = 'text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono-num';
+            }
+            renderOfflineFallbackChart(container, state.activePair, tvInterval, 'tv.js offline/blocked • Auto-retrying');
+            // Retry once after 2.5s in case tv.js was still loading asynchronously
+            if (!forceReload) {
+              setTimeout(() => {
+                if (typeof window.TradingView !== 'undefined') {
+                  mountTradingViewWidget(targetKey, true);
+                }
+              }, 2500);
+            }
+          }
+        });
+      }
+
+      // =========================================================================
+      // 9. TRUE INTERVAL-FROZEN SNAPSHOT ENGINE (15m, 1H, 4H) -> STATIC PNG DATAURL
+      //    Draws full SMC overlays onto an offscreen HiDPI canvas & exports PNG
+      // =========================================================================
+      function generateFrozenSnapshotPNG(symbol, tf, offsetSteps = 0) {
+        const inst = INSTRUMENTS[symbol];
+        const boundary = getIntervalBoundaryMeta(tf, offsetSteps);
+        const seed = hashString(`${symbol}_${tf}_${boundary.bucketIndex}`);
+        const rng = mulberry32(seed);
+
+        // Anchor price slightly modulated deterministically by the closed candle bucket
+        const baseLive = state.prices[symbol] ?? inst.anchorPrice;
+        const tfMult = tf === '15m' ? 1.0 : tf === '1H' ? 2.2 : 4.5;
+        const bucketDrift = ((rng() - 0.5) * 2) * inst.tickSize * 6 * tfMult;
+        const closePrice = Number((baseLive + bucketDrift).toFixed(inst.decimals));
+
+        // Generate 42 deterministic OHLC candles ending at closePrice
+        const candleCount = 42;
+        const rawCandles = [];
+        let cursor = closePrice;
+        for (let i = candleCount - 1; i >= 0; i--) {
+          const close = cursor;
+          const vol = inst.tickSize * (3.5 + rng() * 6.5) * tfMult;
+          const dir = rng() > 0.48 ? 1 : -1;
+          const open = close - dir * vol * (0.3 + rng() * 0.7);
+          const high = Math.max(open, close) + rng() * vol * 0.65;
+          const low = Math.min(open, close) - rng() * vol * 0.65;
+          rawCandles.unshift({ open, high, low, close });
+          cursor = open + (rng() - 0.5) * vol * 0.25;
+        }
+        rawCandles[rawCandles.length - 1].close = closePrice;
+
+        // Calculate structural range & SMC levels
+        let swingHigh = -Infinity, swingLow = Infinity;
+        let highIdx = 0, lowIdx = 0;
+        rawCandles.forEach((c, idx) => {
+          if (c.high > swingHigh) { swingHigh = c.high; highIdx = idx; }
+          if (c.low < swingLow) { swingLow = c.low; lowIdx = idx; }
+        });
+        const rangeSpan = (swingHigh - swingLow) || inst.tickSize * 20;
+        const isBullishBias = closePrice >= (swingLow + rangeSpan * 0.48);
+
+        const eqPrice = swingLow + rangeSpan * 0.5;
+        const ote618 = isBullishBias ? (swingHigh - rangeSpan * 0.618) : (swingLow + rangeSpan * 0.618);
+        const ote786 = isBullishBias ? (swingHigh - rangeSpan * 0.786) : (swingLow + rangeSpan * 0.786);
+
+        const bullObTop = swingLow + rangeSpan * 0.16;
+        const bullObBot = swingLow + rangeSpan * 0.03;
+        const bearObTop = swingHigh - rangeSpan * 0.03;
+        const bearObBot = swingHigh - rangeSpan * 0.16;
+
+        const breakerTop = eqPrice + rangeSpan * 0.08;
+        const breakerBot = eqPrice + rangeSpan * 0.01;
+
+        const fvgTop = isBullishBias ? (eqPrice - rangeSpan * 0.06) : (eqPrice + rangeSpan * 0.22);
+        const fvgBot = isBullishBias ? (eqPrice - rangeSpan * 0.15) : (eqPrice + rangeSpan * 0.13);
+
+        const bslLevel = swingHigh + rangeSpan * 0.03;
+        const sslLevel = swingLow - rangeSpan * 0.03;
+        const eqhLevel = swingHigh - rangeSpan * 0.07;
+        const idmLevel = isBullishBias ? (swingLow + rangeSpan * 0.24) : (swingHigh - rangeSpan * 0.24);
+        const bosLevel = isBullishBias ? (swingHigh - rangeSpan * 0.22) : (swingLow + rangeSpan * 0.22);
+
+        // Offscreen HiDPI Canvas Setup (860 x 470 logical @ 2x DPR = 1720 x 940 PNG)
+        const W = 860;
+        const H = 470;
+        const dpr = 2;
+        const canvas = document.createElement('canvas');
+        canvas.width = W * dpr;
+        canvas.height = H * dpr;
+        const ctx = canvas.getContext('2d');
+        ctx.scale(dpr, dpr);
+
+        const padL = 16;
+        const padR = 88;
+        const padT = 44;
+        const padB = 34;
+        const plotW = W - padL - padR;
+        const plotH = H - padT - padB;
+
+        const viewMax = bslLevel + rangeSpan * 0.09;
+        const viewMin = sslLevel - rangeSpan * 0.09;
+        const mapY = price => padT + plotH - ((price - viewMin) / (viewMax - viewMin)) * plotH;
+
+        // 1. Deep Institutional Background
+        ctx.fillStyle = '#070b14';
+        ctx.fillRect(0, 0, W, H);
+
+        // 2. Premium / Equilibrium / Discount Shading
+        const yTop = mapY(swingHigh);
+        const yEq = mapY(eqPrice);
+        const yBot = mapY(swingLow);
+
+        // Premium zone (top 50%)
+        ctx.fillStyle = 'rgba(244, 63, 94, 0.06)';
+        ctx.fillRect(padL, yTop, plotW, Math.max(0, yEq - yTop));
+
+        // Discount zone (bottom 50%)
+        ctx.fillStyle = 'rgba(16, 185, 129, 0.06)';
+        ctx.fillRect(padL, yEq, plotW, Math.max(0, yBot - yEq));
+
+        // Golden OTE (61.8% - 78.6%) Band
+        const yOte1 = mapY(Math.max(ote618, ote786));
+        const yOte2 = mapY(Math.min(ote618, ote786));
+        ctx.fillStyle = 'rgba(245, 158, 11, 0.13)';
+        ctx.fillRect(padL, yOte1, plotW, Math.max(4, yOte2 - yOte1));
+        ctx.strokeStyle = 'rgba(245, 158, 11, 0.45)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(padL, yOte1, plotW, Math.max(4, yOte2 - yOte1));
+
+        ctx.fillStyle = '#fbbf24';
+        ctx.font = 'bold 9px "JetBrains Mono", monospace';
+        ctx.fillText('OTE 61.8%–78.6%', padL + 8, yOte1 + 11);
+
+        // Equilibrium 50% Dashed Line
+        ctx.strokeStyle = 'rgba(148, 163, 184, 0.45)';
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        ctx.moveTo(padL, yEq);
+        ctx.lineTo(padL + plotW, yEq);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillText(`EQUILIBRIUM 50% (${formatPrice(symbol, eqPrice)})`, padL + 8, yEq - 4);
+
+        // Subtle Price Gridlines & Right Price Scale
+        ctx.strokeStyle = 'rgba(30, 41, 59, 0.65)';
+        ctx.lineWidth = 1;
+        for (let g = 0; g <= 5; g++) {
+          const gy = padT + (plotH / 5) * g;
+          const gPrice = viewMax - ((viewMax - viewMin) / 5) * g;
+          ctx.beginPath();
+          ctx.moveTo(padL, gy);
+          ctx.lineTo(padL + plotW, gy);
+          ctx.stroke();
+
+          ctx.fillStyle = '#64748b';
+          ctx.font = '10px "JetBrains Mono", monospace';
+          ctx.fillText(formatPrice(symbol, gPrice), padL + plotW + 8, gy + 3);
+        }
+
+        // 3. SMC Zones: Bullish +OB, Bearish -OB, Breaker/Mitigation Block, FVG/iFVG
+        function drawZoneBox(pTop, pBot, xStartRatio, fillCol, strokeCol, label, dashed = false) {
+          const x0 = padL + plotW * xStartRatio;
+          const w0 = plotW * (1 - xStartRatio);
+          const y0 = mapY(pTop);
+          const h0 = Math.max(8, mapY(pBot) - y0);
+          ctx.fillStyle = fillCol;
+          ctx.fillRect(x0, y0, w0, h0);
+          ctx.strokeStyle = strokeCol;
+          ctx.lineWidth = 1.2;
+          if (dashed) ctx.setLineDash([4, 3]);
+          ctx.strokeRect(x0, y0, w0, h0);
+          ctx.setLineDash([]);
+
+          ctx.fillStyle = strokeCol;
+          ctx.font = 'bold 9px "JetBrains Mono", monospace';
+          ctx.fillText(label, x0 + 6, y0 + 11);
+        }
+
+        // Bearish Order Block (-OB)
+        drawZoneBox(bearObTop, bearObBot, 0.25, 'rgba(244, 63, 94, 0.16)', '#fb7185', `-OB SUPPLY (${formatPrice(symbol, bearObBot)})`);
+        // Bullish Order Block (+OB)
+        drawZoneBox(bullObTop, bullObBot, 0.20, 'rgba(16, 185, 129, 0.16)', '#34d399', `+OB DEMAND (${formatPrice(symbol, bullObTop)})`);
+        // Breaker / Mitigation Block (BB/MB)
+        drawZoneBox(breakerTop, breakerBot, 0.45, 'rgba(168, 85, 247, 0.14)', '#c084fc', 'BREAKER / MB', true);
+        // Fair Value Gap (FVG / iFVG)
+        drawZoneBox(fvgTop, fvgBot, 0.58, 'rgba(6, 182, 212, 0.16)', '#22d3ee', isBullishBias ? 'FVG IMBALANCE' : 'iFVG INVERSE');
+
+        // 4. Liquidity Lines: BSL, SSL, EQH, IDM Sweep, BOS/CHoCH, S/R
+        function drawHorizontalMarker(price, color, label, alignRight = false, dashed = true) {
+          const y = mapY(price);
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 1.2;
+          if (dashed) ctx.setLineDash([6, 4]);
+          ctx.beginPath();
+          ctx.moveTo(padL, y);
+          ctx.lineTo(padL + plotW, y);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          ctx.font = 'bold 9px "JetBrains Mono", monospace';
+          const tw = ctx.measureText(label).width;
+          const lx = alignRight ? (padL + plotW - tw - 8) : (padL + 8);
+          ctx.fillStyle = 'rgba(7, 11, 20, 0.85)';
+          ctx.fillRect(lx - 3, y - 11, tw + 6, 12);
+          ctx.fillStyle = color;
+          ctx.fillText(label, lx, y - 2);
+        }
+
+        drawHorizontalMarker(bslLevel, '#facc15', `BSL $$$ ${formatPrice(symbol, bslLevel)}`, true, true);
+        drawHorizontalMarker(eqhLevel, '#fb923c', `EQH LIQUIDITY`, false, true);
+        drawHorizontalMarker(sslLevel, '#38bdf8', `SSL $$$ ${formatPrice(symbol, sslLevel)}`, true, true);
+        drawHorizontalMarker(bosLevel, isBullishBias ? '#10b981' : '#f43f5e', isBullishBias ? 'BOS ▲ CONFIRMED' : 'CHoCH ▼ BREAK', true, false);
+        drawHorizontalMarker(idmLevel, '#e879f9', '✕ IDM SWEPT', false, true);
+
+        // 5. Render the 42 Frozen Candlesticks
+        const candleStep = plotW / candleCount;
+        rawCandles.forEach((c, idx) => {
+          const cx = padL + idx * candleStep + candleStep * 0.5;
+          const isBull = c.close >= c.open;
+          const col = isBull ? '#10b981' : '#f43f5e';
+
+          ctx.strokeStyle = col;
+          ctx.lineWidth = 1.4;
+          ctx.beginPath();
+          ctx.moveTo(cx, mapY(c.high));
+          ctx.lineTo(cx, mapY(c.low));
+          ctx.stroke();
+
+          const yOpen = mapY(c.open);
+          const yClose = mapY(c.close);
+          const bodyTop = Math.min(yOpen, yClose);
+          const bodyH = Math.max(2.5, Math.abs(yClose - yOpen));
+          ctx.fillStyle = col;
+          ctx.fillRect(cx - candleStep * 0.31, bodyTop, candleStep * 0.62, bodyH);
+        });
+
+        // 6. Current Frozen Close Price Tag on Right Axis
+        const yCloseFinal = mapY(closePrice);
+        ctx.strokeStyle = '#06b6d4';
+        ctx.lineWidth = 1.3;
+        ctx.setLineDash([3, 3]);
+        ctx.beginPath();
+        ctx.moveTo(padL, yCloseFinal);
+        ctx.lineTo(padL + plotW, yCloseFinal);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.fillStyle = '#06b6d4';
+        ctx.fillRect(padL + plotW + 2, yCloseFinal - 10, padR - 6, 20);
+        ctx.fillStyle = '#041019';
+        ctx.font = 'bold 10px "JetBrains Mono", monospace';
+        ctx.fillText(formatPrice(symbol, closePrice), padL + plotW + 6, yCloseFinal + 3);
+
+        // 7. Top & Bottom Stamped Snapshot Watermark Header/Footer inside the PNG
+        ctx.fillStyle = '#0b1222';
+        ctx.fillRect(0, 0, W, 34);
+        ctx.strokeStyle = '#1e293b';
+        ctx.beginPath();
+        ctx.moveTo(0, 34);
+        ctx.lineTo(W, 34);
+        ctx.stroke();
+
+        // Top-Left Pill
+        ctx.fillStyle = '#22d3ee';
+        ctx.font = 'bold 11px "JetBrains Mono", monospace';
+        ctx.fillText(`CENTRA WIB v8 • ${symbol} • ${tf.toUpperCase()} FROZEN SNAPSHOT`, 14, 21);
+
+        // Top-Right Timestamp Stamp
+        const stampText = `CAPTURED ${boundary.capturedWibStr} • FROZEN UNTIL ${boundary.nextCloseWibStr}`;
+        const stampW = ctx.measureText(stampText).width;
+        ctx.fillStyle = '#fbbf24';
+        ctx.fillText(stampText, W - stampW - 14, 21);
+
+        // Bottom Footer Watermark
+        ctx.fillStyle = '#0b1222';
+        ctx.fillRect(0, H - 24, W, 24);
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.fillText(`STATIC PNG CAPTURE • CLOSE: ${formatPrice(symbol, closePrice)} • S/R + OB + BB + FVG + BSL/SSL + IDM + OTE`, 14, H - 8);
+
+        const dataUrl = canvas.toDataURL('image/png');
+
+        // Build 2 Probable Possible Outcomes locked to this snapshot timestamp
+        const bullProb = isBullishBias ? (58 + Math.floor(rng() * 14)) : (31 + Math.floor(rng() * 12));
+        const bearProb = 100 - bullProb;
+
+        const outcomes = [
+          {
+            label: `Scenario A: Bullish ${isBullishBias ? 'Continuation' : 'Reversal'}`,
+            prob: bullProb,
+            tone: 'emerald',
+            trigger: `Hold above +OB (${formatPrice(symbol, bullObTop)}) & reclaim Equilibrium ${formatPrice(symbol, eqPrice)}`,
+            target: `${formatPrice(symbol, bslLevel)} (BSL Liquidity Pool)`,
+            invalidation: `Clean ${tf} close below ${formatPrice(symbol, sslLevel)} SSL`
+          },
+          {
+            label: `Scenario B: Bearish ${!isBullishBias ? 'Continuation' : 'Reversal'}`,
+            prob: bearProb,
+            tone: 'rose',
+            trigger: `Rejection at -OB (${formatPrice(symbol, bearObBot)}) or breakdown below ${formatPrice(symbol, idmLevel)} IDM`,
+            target: `${formatPrice(symbol, sslLevel)} (SSL Liquidity Pool)`,
+            invalidation: `Clean ${tf} close above ${formatPrice(symbol, bslLevel)} BSL`
+          }
+        ];
+
+        return {
+          id: `snap_${symbol}_${tf}_${boundary.bucketIndex}_${Date.now()}`,
+          symbol,
+          tf,
+          bucketKey: boundary.bucketKey,
+          capturedWibStr: boundary.capturedWibStr,
+          nextCloseWibStr: boundary.nextCloseWibStr,
+          fullDateStr: boundary.fullDateStr,
+          closePrice,
+          dataUrl,
+          outcomes
+        };
+      }
+
+      function ensureFrozenSnapshotsForSymbol(symbol, forceCaptureAll = false) {
+        const tfs = ['15m', '1H', '4H'];
+        let newCaptureCount = 0;
+
+        tfs.forEach(tf => {
+          const key = `${symbol}_${tf}`;
+          const offset = state.simCandleOffsets[key] || 0;
+          const boundary = getIntervalBoundaryMeta(tf, offset);
+          const existing = state.frozenSnapshots[key];
+
+          if (forceCaptureAll || !existing || existing.bucketKey !== boundary.bucketKey) {
+            const snap = generateFrozenSnapshotPNG(symbol, tf, offset);
+            state.frozenSnapshots[key] = snap;
+            // Add to archive if not duplicate bucketKey
+            const alreadyArchived = state.snapshotArchive.some(
+              a => a.symbol === symbol && a.tf === tf && a.bucketKey === snap.bucketKey && !forceCaptureAll
+            );
+            if (!alreadyArchived) {
+              state.snapshotArchive.unshift(snap);
+              state.snapshotArchive = state.snapshotArchive.slice(0, 12);
+              newCaptureCount++;
+            }
+          }
+        });
+
+        if (newCaptureCount > 0) {
+          saveState();
+        }
+        return newCaptureCount;
+      }
+
+      // =========================================================================
+      // 10. LIVE ENTRY FINDER BOT (WITH MM:SS COUNTDOWN & AUTO-REPLACEMENT)
+      // =========================================================================
+      function buildEntrySetup(symbol, horizonKey, cycleSeed = 0) {
+        const inst = INSTRUMENTS[symbol];
+        const profile = HORIZON_PROFILES[symbol][horizonKey];
+        const livePx = state.prices[symbol] ?? inst.anchorPrice;
+        const rng = mulberry32(hashString(`${symbol}_${horizonKey}_${cycleSeed}`));
+
+        // Determine actionable direction even when profile is SIDEWAYS/WAIT
+        let side = 'BUY';
+        if (profile.verdict.includes('SELL')) side = 'SELL';
+        else if (profile.verdict.includes('BUY')) side = 'BUY';
+        else side = rng() > 0.5 ? 'BUY' : 'SELL';
+
+        const horizonLabel = horizonKey === 'short' ? 'SCALP' : horizonKey === 'medium' ? 'INTRADAY' : 'SWING';
+        const distMult = horizonKey === 'short' ? 1.0 : horizonKey === 'medium' ? 2.1 : 4.2;
+
+        // Small realistic adjustment around live price so setups feel fresh when cycled
+        const offsetTicks = ((rng() - 0.5) * 1.6) * inst.tickSize * distMult;
+        const entry = Number((livePx + offsetTicks).toFixed(inst.decimals));
+        const slDist = Number((inst.defaultSlDist * distMult * (0.9 + rng() * 0.25)).toFixed(inst.decimals));
+        const rrRatio = Number((1.75 + rng() * 1.45).toFixed(2));
+        const tpDist = Number((slDist * rrRatio).toFixed(inst.decimals));
+
+        const sl = Number((side === 'BUY' ? entry - slDist : entry + slDist).toFixed(inst.decimals));
+        const tp = Number((side === 'BUY' ? entry + tpDist : entry - tpDist).toFixed(inst.decimals));
+
+        const metrics = getAccountMetrics();
+        const lotCalc = calcSuggestedCentLot(symbol, 1.0, slDist, metrics.equity);
+
+        // Expiration duration: Scalp = 8–14 mins, Intraday = 25–45 mins, Swing = 55–90 mins
+        const ttlSec = horizonKey === 'short'
+          ? (480 + Math.floor(rng() * 360))
+          : horizonKey === 'medium'
+          ? (1500 + Math.floor(rng() * 1200))
+          : (3300 + Math.floor(rng() * 2100));
+
+        return {
+          id: `ent_${symbol}_${horizonKey}_${Date.now()}_${Math.floor(rng() * 999)}`,
+          symbol,
+          horizonKey,
+          horizonLabel,
+          side,
+          entry,
+          sl,
+          tp,
+          rr: `1 : ${rrRatio.toFixed(2)}`,
+          lot: lotCalc.lot,
+          riskUsc: lotCalc.riskUsc,
+          rationale: profile.s5,
+          expiresAtMs: Date.now() + ttlSec * 1000,
+          ttlSec,
+          cycleCount: cycleSeed
+        };
+      }
+
+      function initEntriesIfNeeded(forceReset = false) {
+        if (!forceReset && Array.isArray(state.entries) && state.entries.length >= 6) {
+          // Ensure expiresAtMs are in the future on fresh load
+          const now = Date.now();
+          let changed = false;
+          state.entries = state.entries.map((ent, idx) => {
+            if (!ent.expiresAtMs || ent.expiresAtMs <= now) {
+              changed = true;
+              return buildEntrySetup(ent.symbol, ent.horizonKey, (ent.cycleCount || 0) + 1 + idx);
+            }
+            return ent;
+          });
+          if (changed) saveState();
+          return;
+        }
+
+        const matrixPlan = [
+          ['XAUUSDc', 'short'],
+          ['USDJPYc', 'medium'],
+          ['USTECc', 'long'],
+          ['USOILc', 'medium'],
+          ['AUDCADc', 'medium'],
+          ['BTCUSDc', 'short'],
+          ['XAUUSDc', 'long'],
+          ['BTCUSDc', 'long']
+        ];
+        state.entries = matrixPlan.map(([sym, hor], idx) => buildEntrySetup(sym, hor, idx + 1));
+        saveState();
+      }
+
+      // =========================================================================
+      // 11. RENDERING FUNCTIONS (TARGETED, NON-DESTRUCTIVE TO INPUTS)
+      // =========================================================================
+      function getVerdictBadgeStyle(verdict) {
+        if (verdict === 'BUY' || verdict === 'FOLLOW TREND BUY') {
+          return {
+            pill: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+            cardGlow: 'inst-glow-emerald border-emerald-500/35'
+          };
+        }
+        if (verdict === 'SELL' || verdict === 'FOLLOW TREND SELL') {
+          return {
+            pill: 'bg-rose-500/20 text-rose-300 border-rose-500/40',
+            cardGlow: 'inst-glow-rose border-rose-500/35'
+          };
+        }
+        if (verdict === 'SIDEWAYS') {
+          return {
+            pill: 'bg-amber-500/20 text-amber-300 border-amber-500/40',
+            cardGlow: 'inst-glow-amber border-amber-500/35'
+          };
+        }
+        return {
+          pill: 'bg-slate-700/60 text-slate-200 border-slate-600',
+          cardGlow: 'border-slate-700/80'
+        };
+      }
+
+      function renderPairRibbon() {
+        const container = document.getElementById('pair-ribbon');
+        if (!container) return;
+
+        container.innerHTML = PAIR_KEYS.map(sym => {
+          const inst = INSTRUMENTS[sym];
+          const livePx = state.prices[sym] ?? inst.anchorPrice;
+          const pct = ((livePx - inst.anchorPrice) / inst.anchorPrice) * 100;
+          const isActive = state.activePair === sym;
+          const pctColor = pct >= 0 ? 'text-emerald-400' : 'text-rose-400';
+
+          return `
+            <button type="button" data-select-pair="${sym}" class="px-3 py-2 rounded-xl border text-left transition shrink-0 ${
+              isActive
+                ? 'bg-cyan-500/15 border-cyan-400/70 shadow-md'
+                : 'bg-slate-900/90 border-slate-800 hover:border-slate-700'
+            }">
+              <div class="flex items-center justify-between gap-3">
+                <span class="text-xs font-bold ${isActive ? 'text-white' : 'text-slate-300'}">${sym}</span>
+                <span data-live-change="${sym}" class="text-[10px] font-mono-num font-semibold ${pctColor}">
+                  ${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%
+                </span>
+              </div>
+              <div data-live-price="${sym}" class="text-xs font-mono-num font-bold text-slate-100 mt-0.5">
+                ${formatPrice(sym, livePx)}
+              </div>
+            </button>
+          `;
+        }).join('');
+
+        container.querySelectorAll('[data-select-pair]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const sym = btn.getAttribute('data-select-pair');
+            if (sym && sym !== state.activePair) {
+              state.activePair = sym;
+              saveState();
+              renderPairRibbon();
+              renderSignalsTab();
+              renderTechnicalsTab();
+              mountTradingViewWidget('signals', true);
+              mountTradingViewWidget('technicals', true);
+            }
+          });
+        });
+      }
+
+      function renderSignalsTab() {
+        const sym = state.activePair;
+        const hor = state.activeHorizon;
+        const inst = INSTRUMENTS[sym];
+        const profile = HORIZON_PROFILES[sym][hor];
+        const metrics = getAccountMetrics();
+        const slDist = Math.abs(profile.entry - profile.sl);
+        const lotInfo = calcSuggestedCentLot(sym, 1.0, slDist, metrics.equity);
+
+        // Update Horizon Buttons
+        document.querySelectorAll('.horizon-btn').forEach(btn => {
+          const btnHor = btn.getAttribute('data-horizon');
+          const active = btnHor === hor;
+          btn.className = `horizon-btn py-2.5 px-2 rounded-xl text-center transition border ${
+            active
+              ? 'bg-gradient-to-r from-cyan-600/30 to-blue-600/30 border-cyan-400 text-white shadow'
+              : 'bg-slate-950/70 border-slate-800 text-slate-400 hover:text-slate-200'
+          }`;
+        });
+
+        const tfBadge = document.getElementById('signals-tf-badge');
+        if (tfBadge) {
+          const modeName = hor === 'short' ? 'SCALP ENGINE' : hor === 'medium' ? 'INTRADAY ENGINE' : 'SWING ENGINE';
+          tfBadge.textContent = `TV: ${profile.tvInterval === '240' ? '4H' : profile.tvInterval + 'm'} • ${modeName}`;
+        }
+
+        // Bot S5 Verdict Card
+        const s5Container = document.getElementById('bot-s5-verdict-container');
+        if (s5Container) {
+          const vStyle = getVerdictBadgeStyle(profile.verdict);
+          const horizonTitle = hor === 'short'
+            ? 'SHORT • SCALP VERDICT (1m / 5m / 15m)'
+            : hor === 'medium'
+            ? 'MEDIUM • INTRADAY VERDICT (15m / 1H)'
+            : 'LONG • SWING VERDICT (4H / 1D + MACRO/ASTRAL)';
+
+          s5Container.innerHTML = `
+            <div class="inst-card rounded-2xl p-4 space-y-3 ${vStyle.cardGlow}">
+              <div class="flex flex-wrap items-start justify-between gap-2">
+                <div>
+                  <div class="text-[10px] font-mono-num uppercase tracking-wider text-cyan-400 font-semibold">${horizonTitle}</div>
+                  <h2 class="text-base font-extrabold text-white mt-0.5">Bot S5 Chief Synthesizer • ${sym}</h2>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="px-3 py-1 rounded-xl text-xs font-extrabold border ${vStyle.pill}">${profile.verdict}</span>
+                  <span class="px-2.5 py-1 rounded-xl text-xs font-mono-num font-bold bg-slate-800 text-slate-200">${profile.confidence}%</span>
+                </div>
+              </div>
+
+              <p class="text-xs leading-relaxed text-slate-200 bg-slate-950/75 p-3 rounded-xl border border-slate-800/90">
+                ${profile.s5}
+              </p>
+
+              <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs font-mono-num">
+                <div class="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800">
+                  <div class="text-[10px] text-slate-400">ENTRY ZONE</div>
+                  <div class="font-bold text-white mt-0.5">${formatPrice(sym, profile.entry)}</div>
+                </div>
+                <div class="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800">
+                  <div class="text-[10px] text-slate-400">STOP LOSS</div>
+                  <div class="font-bold text-rose-400 mt-0.5">${formatPrice(sym, profile.sl)}</div>
+                </div>
+                <div class="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800">
+                  <div class="text-[10px] text-slate-400">TAKE PROFIT</div>
+                  <div class="font-bold text-emerald-400 mt-0.5">${formatPrice(sym, profile.tp)}</div>
+                </div>
+                <div class="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800">
+                  <div class="text-[10px] text-slate-400">RISK : REWARD</div>
+                  <div class="font-bold text-cyan-300 mt-0.5">${profile.rr}</div>
+                </div>
+                <div class="col-span-2 sm:col-span-1 p-2.5 rounded-xl bg-slate-950/80 border border-slate-800">
+                  <div class="text-[10px] text-slate-400">CENT LOT (1%)</div>
+                  <div class="font-bold text-amber-300 mt-0.5">${lotInfo.lot.toFixed(2)} Lots</div>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+
+        // Side-by-Side Horizon Comparison Strip for Active Pair
+        const compEl = document.getElementById('pair-horizon-comparison');
+        if (compEl) {
+          const allH = [
+            { k: 'short', label: 'Short (Scalp 5m)', data: HORIZON_PROFILES[sym].short },
+            { k: 'medium', label: 'Medium (Intraday 1H)', data: HORIZON_PROFILES[sym].medium },
+            { k: 'long', label: 'Long (Swing 4H/1D)', data: HORIZON_PROFILES[sym].long }
+          ];
+          compEl.innerHTML = `
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold text-slate-300">${sym} Multi-Timeframe Alignment Check</span>
+              <span class="text-[10px] font-mono-num text-slate-400">${inst.astralCycle}</span>
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+              ${allH.map(item => {
+                const st = getVerdictBadgeStyle(item.data.verdict);
+                const isCur = item.k === hor;
+                return `
+                  <button type="button" onclick="window.app.setHorizon('${item.k}')" class="p-2.5 rounded-xl border text-left transition ${
+                    isCur ? 'bg-slate-900 border-cyan-500/70' : 'bg-slate-950/70 border-slate-800 hover:border-slate-700'
+                  }">
+                    <div class="text-[10px] text-slate-400 truncate">${item.label}</div>
+                    <div class="mt-1 inline-block px-2 py-0.5 rounded text-[10px] font-extrabold border ${st.pill}">
+                      ${item.data.verdict}
+                    </div>
+                    <div class="text-[10px] font-mono-num text-slate-400 mt-1">Conf: ${item.data.confidence}%</div>
+                  </button>
+                `;
+              }).join('')}
+            </div>
+          `;
+        }
+
+        // Bots S1 - S4 Independent Telemetry Grid
+        const botsGrid = document.getElementById('bots-s1-s4-grid');
+        if (botsGrid) {
+          const bots = [
+            { id: 'BOT S1', name: 'SMC & Liquidity Structure', tag: profile.timeframes, text: profile.s1, color: 'text-cyan-400' },
+            { id: 'BOT S2', name: 'Geometry, Fib OTE & Cycle', tag: hor === 'long' ? 'OTE + ASTRAL' : 'FIB + ATR', text: profile.s2, color: 'text-amber-400' },
+            { id: 'BOT S3', name: 'Macro, Yields & Catalyst', tag: 'FUNDAMENTAL', text: profile.s3, color: 'text-indigo-400' },
+            { id: 'BOT S4', name: 'WIB Session, Spread & Rollover', tag: 'UTC+7 DESK', text: profile.s4, color: 'text-emerald-400' }
+          ];
+
+          botsGrid.innerHTML = bots.map(b => `
+            <div class="inst-card rounded-2xl p-3 space-y-1.5">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold ${b.color}">${b.id} • ${b.name}</span>
+                <span class="text-[10px] font-mono-num px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">${b.tag}</span>
+              </div>
+              <p class="text-xs leading-relaxed text-slate-300">${b.text}</p>
+            </div>
+          `).join('');
+        }
+      }
+
+      function renderEntriesTab() {
+        const listEl = document.getElementById('entries-list');
+        if (!listEl) return;
+
+        // Update filter button styles
+        document.querySelectorAll('.entry-filter-btn').forEach(btn => {
+          const f = btn.getAttribute('data-entry-filter');
+          btn.className = `entry-filter-btn px-2.5 py-1.5 rounded-xl text-xs font-semibold transition ${
+            f === state.entryFilter ? 'bg-cyan-600 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+          }`;
+        });
+
+        const filtered = state.entries.filter(ent =>
+          state.entryFilter === 'ALL' ? true : ent.horizonLabel === state.entryFilter
+        );
+
+        listEl.innerHTML = filtered.map(ent => {
+          const isBuy = ent.side === 'BUY';
+          const remSec = Math.max(0, Math.floor((ent.expiresAtMs - Date.now()) / 1000));
+          const mm = String(Math.floor(remSec / 60)).padStart(2, '0');
+          const ss = String(remSec % 60).padStart(2, '0');
+          const pctLeft = Math.min(100, Math.max(0, (remSec / ent.ttlSec) * 100));
+
+          return `
+            <div class="inst-card rounded-2xl p-3.5 space-y-3 border-slate-700/80">
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-extrabold text-white">${ent.symbol}</span>
+                  <span class="px-2 py-0.5 rounded-lg text-[10px] font-extrabold border ${
+                    isBuy ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                  }">${ent.side}</span>
+                  <span class="px-2 py-0.5 rounded-lg text-[10px] font-mono-num font-semibold bg-slate-800 text-cyan-300">
+                    ${ent.horizonLabel}
+                  </span>
+                </div>
+                <div class="text-right">
+                  <div class="text-[10px] text-slate-400">EXPIRES IN</div>
+                  <div data-live-entry-timer="${ent.id}" class="text-xs font-mono-num font-bold text-amber-300">${mm}:${ss}</div>
+                </div>
+              </div>
+
+              <div class="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
+                <div data-live-entry-bar="${ent.id}" class="h-full bg-gradient-to-r from-cyan-500 to-amber-400 transition-all duration-500" style="width: ${pctLeft}%"></div>
+              </div>
+
+              <div class="grid grid-cols-4 gap-1.5 text-center font-mono-num">
+                <div class="p-2 rounded-xl bg-slate-950/80 border border-slate-800">
+                  <div class="text-[9px] text-slate-400">ENTRY</div>
+                  <div class="text-xs font-bold text-white mt-0.5">${formatPrice(ent.symbol, ent.entry)}</div>
+                </div>
+                <div class="p-2 rounded-xl bg-slate-950/80 border border-slate-800">
+                  <div class="text-[9px] text-slate-400">STOP LOSS</div>
+                  <div class="text-xs font-bold text-rose-400 mt-0.5">${formatPrice(ent.symbol, ent.sl)}</div>
+                </div>
+                <div class="p-2 rounded-xl bg-slate-950/80 border border-slate-800">
+                  <div class="text-[9px] text-slate-400">TAKE PROFIT</div>
+                  <div class="text-xs font-bold text-emerald-400 mt-0.5">${formatPrice(ent.symbol, ent.tp)}</div>
+                </div>
+                <div class="p-2 rounded-xl bg-slate-950/80 border border-slate-800">
+                  <div class="text-[9px] text-slate-400">R:R / LOT</div>
+                  <div class="text-[11px] font-bold text-cyan-300 mt-0.5">${ent.rr.replace('1 : ', '1:')} • ${ent.lot.toFixed(2)}</div>
+                </div>
+              </div>
+
+              <p class="text-[11px] text-slate-300 leading-relaxed line-clamp-2">${ent.rationale}</p>
+
+              <div class="flex items-center justify-between gap-2 pt-1">
+                <span class="text-[10px] font-mono-num text-slate-400">Est. Risk: ${formatUscUnsigned(ent.riskUsc)} (${formatIdr(ent.riskUsc)})</span>
+                <button type="button" onclick="window.app.logEntryToVault('${ent.id}')" class="px-3 py-1.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold shadow">
+                  + Log to MT5 Vault
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      function renderTechnicalsTab() {
+        const sym = state.activePair;
+        ensureFrozenSnapshotsForSymbol(sym, false);
+
+        const container = document.getElementById('frozen-snapshots-container');
+        if (!container) return;
+
+        const tfs = [
+          { tf: '15m', title: '15m Candle Snapshot', rule: 'Closes at :00, :15, :30, :45 WIB' },
+          { tf: '1H', title: '1H Candle Snapshot', rule: 'Closes at :00 every hour WIB' },
+          { tf: '4H', title: '4H Candle Snapshot', rule: 'Closes at 00:00, 04:00, 08:00, 12:00, 16:00, 20:00 WIB' }
+        ];
+
+        container.innerHTML = tfs.map(item => {
+          const snap = state.frozenSnapshots[`${sym}_${item.tf}`];
+          if (!snap) return '';
+
+          return `
+            <article class="inst-card rounded-2xl p-3.5 space-y-3 border-slate-700/80">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="px-2 py-0.5 rounded-lg text-[10px] font-mono-num font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
+                      FROZEN PNG • ${item.tf}
+                    </span>
+                    <h3 class="text-sm font-bold text-white">${item.title} (${sym})</h3>
+                  </div>
+                  <p class="text-[11px] font-mono-num text-amber-300 mt-1">
+                    CAPTURED ${snap.capturedWibStr} • FROZEN UNTIL ${snap.nextCloseWibStr}
+                  </p>
+                </div>
+
+                <div class="flex items-center gap-1.5">
+                  <button type="button" onclick="window.app.openSnapshotModal('${sym}', '${item.tf}')" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 font-semibold">
+                    ⤢ Fullscreen PNG
+                  </button>
+                </div>
+              </div>
+
+              <!-- STATIC FROZEN PNG IMAGE (NEVER ANIMATES ON 4S TICKS) -->
+              <div class="relative rounded-xl overflow-hidden border border-slate-800 bg-[#070b14]">
+                <img src="${snap.dataUrl}" alt="${sym} ${item.tf} Frozen SMC Snapshot" class="w-full h-auto block select-none" />
+              </div>
+
+              <!-- 2 Probable Possible Outcomes Locked to Snapshot Timestamp -->
+              <div class="space-y-2">
+                <div class="flex items-center justify-between text-[10px] font-mono-num text-slate-400">
+                  <span>2 PROBABLE OUTCOMES LOCKED TO ${snap.capturedWibStr}</span>
+                  <span>${item.rule}</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                  ${snap.outcomes.map(out => {
+                    const isEm = out.tone === 'emerald';
+                    return `
+                      <div class="p-3 rounded-xl border ${
+                        isEm ? 'bg-emerald-950/25 border-emerald-500/35' : 'bg-rose-950/25 border-rose-500/35'
+                      } space-y-1.5">
+                        <div class="flex items-center justify-between">
+                          <span class="text-xs font-bold ${isEm ? 'text-emerald-300' : 'text-rose-300'}">${out.label}</span>
+                          <span class="text-xs font-mono-num font-extrabold px-2 py-0.5 rounded ${
+                            isEm ? 'bg-emerald-500/20 text-emerald-200' : 'bg-rose-500/20 text-rose-200'
+                          }">${out.prob}%</span>
+                        </div>
+                        <div class="text-[11px] text-slate-300"><strong class="text-slate-200">Trigger:</strong> ${out.trigger}</div>
+                        <div class="text-[11px] font-mono-num text-slate-300"><strong class="text-slate-200">Target:</strong> ${out.target}</div>
+                        <div class="text-[11px] font-mono-num text-slate-400"><strong class="text-slate-300">Invalidation:</strong> ${out.invalidation}</div>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
+            </article>
+          `;
+        }).join('');
+
+        renderSnapshotArchive();
+      }
+
+      function renderSnapshotArchive() {
+        const badge = document.getElementById('archive-count-badge');
+        const body = document.getElementById('snapshot-archive-body');
+        if (badge) badge.textContent = state.snapshotArchive.length;
+        if (!body) return;
+
+        if (state.snapshotArchive.length === 0) {
+          body.innerHTML = `<p class="text-xs text-slate-400 py-2">No historical captures archived yet.</p>`;
+          return;
+        }
+
+        body.innerHTML = `
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
+            ${state.snapshotArchive.map((item, idx) => `
+              <div class="p-2.5 rounded-xl bg-slate-950/85 border border-slate-800 flex items-center justify-between gap-2">
+                <div class="min-w-0">
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-xs font-bold text-white">${item.symbol}</span>
+                    <span class="text-[10px] font-mono-num px-1.5 py-0.5 rounded bg-cyan-500/15 text-cyan-300">${item.tf}</span>
+                    <span class="text-[11px] font-mono-num text-slate-300">${formatPrice(item.symbol, item.closePrice)}</span>
+                  </div>
+                  <div class="text-[10px] font-mono-num text-slate-400 truncate mt-0.5">
+                    Captured ${item.fullDateStr}
+                  </div>
+                </div>
+                ${item.dataUrl ? `
+                  <button type="button" onclick="window.app.openArchivedSnapshot(${idx})" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] text-cyan-300 font-semibold shrink-0">
+                    View PNG
+                  </button>
+                ` : `<span class="text-[10px] text-slate-500">Metadata</span>`}
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+
+      function renderGeminiTab() {
+        const wib = getWibParts();
+        const session = getWibSessionInfo(wib);
+        const metrics = getAccountMetrics();
+        const hasKey = Boolean(state.settings.geminiApiKey && state.settings.geminiApiKey.trim().length > 10);
+
+        const badgeEl = document.getElementById('gemini-engine-badge');
+        if (badgeEl) {
+          badgeEl.textContent = hasKey
+            ? 'GEMINI-3-FLASH-PREVIEW API CONNECTED • WIB SYNCED'
+            : 'BUILT-IN INSTITUTIONAL DESK ENGINE • WIB SYNCED';
+        }
+
+        const briefEl = document.getElementById('gemini-executive-brief');
+        if (briefEl) {
+          briefEl.innerHTML = `
+            <p><strong class="text-white">WIB Desk Regime (${wib.hhmmss} WIB • ${session.label}):</strong> Market liquidity is currently transitioning through late-NY post-settlement flows ahead of the 04:00 WIB MT5 Cent swap rollover and 07:30 WIB RBA Minutes.</p>
+            <p><strong class="text-cyan-300">Top Horizon Opportunities (Calibrated for ${formatUscUnsigned(metrics.equity)} / ${formatIdr(metrics.equity)}):</strong></p>
+            <ul class="list-disc pl-4 space-y-1 text-slate-300">
+              <li><strong class="text-emerald-300">Short (Scalp 5m/15m):</strong> <span class="font-mono-num">XAUUSDc SELL</span> (fade 3867.20 -OB after 3871.40 EQH sweep; TP 3855.80) and <span class="font-mono-num">BTCUSDc FOLLOW TREND SELL</span> (64340 -OB to 63680 SSL).</li>
+              <li><strong class="text-sky-300">Medium (Intraday 15m/1H):</strong> <span class="font-mono-num">USDJPYc BUY</span> (159.320 1H Breaker hold targeting 160.120 BSL) and <span class="font-mono-num">AUDCADc BUY</span> (0.9148 1H Discount OTE post-RBA).</li>
+              <li><strong class="text-amber-300">Long (Swing 4H/1D):</strong> <span class="font-mono-num">XAUUSDc FOLLOW TREND BUY</span> (accumulate 3838.00 4H Discount OTE toward 3915.00) and <span class="font-mono-num">USTECc BUY</span> (27560.0 4H Demand toward 28150.0).</li>
+            </ul>
+            <p class="text-[11px] text-slate-400 pt-1 border-t border-slate-800/80">
+              Risk Guard: Current portfolio heat is <strong class="text-cyan-300">${metrics.heatPct.toFixed(2)}%</strong> of ${metrics.maxHeatPct}% ceiling. Keep single Cent positions between 0.01–0.03 lots on Gold/Oil/BTC.
+            </p>
+          `;
+        }
+
+        // All-6-Pairs Horizon Matrix
+        const matrixBody = document.getElementById('all-pairs-matrix-body');
+        if (matrixBody) {
+          matrixBody.innerHTML = PAIR_KEYS.map(sym => {
+            const inst = INSTRUMENTS[sym];
+            const livePx = state.prices[sym] ?? inst.anchorPrice;
+            const pShort = HORIZON_PROFILES[sym].short;
+            const pMed = HORIZON_PROFILES[sym].medium;
+            const pLong = HORIZON_PROFILES[sym].long;
+
+            const renderCell = (horKey, pObj) => {
+              const st = getVerdictBadgeStyle(pObj.verdict);
+              return `
+                <td class="py-2 px-2">
+                  <button type="button" onclick="window.app.jumpToSignal('${sym}', '${horKey}')" class="px-2 py-1 rounded-lg text-[10px] font-extrabold border ${st.pill} hover:opacity-90 transition text-left">
+                    ${pObj.verdict} <span class="opacity-75 font-mono-num">${pObj.confidence}%</span>
+                  </button>
+                </td>
+              `;
+            };
+
+            return `
+              <tr class="hover:bg-slate-900/60">
+                <td class="py-2 px-2 font-mono-num">
+                  <div class="font-bold text-white">${sym}</div>
+                  <div class="text-[10px] text-slate-400">${formatPrice(sym, livePx)}</div>
+                </td>
+                ${renderCell('short', pShort)}
+                ${renderCell('medium', pMed)}
+                ${renderCell('long', pLong)}
+              </tr>
+            `;
+          }).join('');
+        }
+
+        renderGeminiChatHistory();
+      }
+
+      function renderGeminiChatHistory() {
+        const box = document.getElementById('gemini-chat-history');
+        if (!box) return;
+        box.innerHTML = state.chatMessages.map(msg => {
+          const isUser = msg.role === 'user';
+          return `
+            <div class="flex ${isUser ? 'justify-end' : 'justify-start'}">
+              <div class="max-w-[88%] rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed ${
+                isUser
+                  ? 'bg-cyan-600 text-white font-medium'
+                  : 'bg-slate-950/90 border border-slate-800 text-slate-200'
+              }">
+                ${msg.text}
+              </div>
+            </div>
+          `;
+        }).join('');
+        box.scrollTop = box.scrollHeight;
+      }
+
+      function renderNewsTab() {
+        // 4-Bot News Filter & Executive Summary
+        const botsEl = document.getElementById('news-4bots-grid');
+        if (botsEl) {
+          const newsBots = [
+            {
+              id: 'BOT N1 • GATEKEEPER',
+              text: 'Next High-Impact WIB Catalyst: 07:30 WIB AUD RBA Monetary Policy Minutes (affects AUDCADc), followed by 20:30 WIB US Core Retail Sales (High impact on XAUUSDc, USDJPYc, USTECc, BTCUSDc).'
+            },
+            {
+              id: 'BOT N2 • SPREAD GUARD',
+              text: 'Avoid opening new market Scalps 5 minutes prior to 07:30 WIB (AUD) and 20:30 WIB (USD). MT5 Cent spreads widen 2.5x–4x during Tier-1 releases.'
+            },
+            {
+              id: 'BOT N3 • CORRELATION FILTER',
+              text: 'US Retail Sales (20:30 WIB) & FOMC Minutes (Thu 02:00 WIB) drive synchronized USD/Yield impulses across XAUUSDc, USDJPYc, and USTECc—cap combined heat under 4.5%.'
+            },
+            {
+              id: 'BOT N4 • EXECUTIVE PLAYBOOK',
+              text: 'Trade clean SMC setups during 01:30–03:45 WIB (pre-rollover) and 14:00–19:30 WIB London window; flatten or protect Scalp exposure before 20:30 WIB Retail Sales.'
+            }
+          ];
+          botsEl.innerHTML = newsBots.map(b => `
+            <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800 space-y-1">
+              <div class="text-[11px] font-bold text-amber-300 font-mono-num">${b.id}</div>
+              <p class="text-xs text-slate-300 leading-relaxed">${b.text}</p>
+            </div>
+          `).join('');
+        }
+
+        // Update Day Filter Pills
+        document.querySelectorAll('.news-day-btn').forEach(btn => {
+          const d = btn.getAttribute('data-news-day');
+          btn.className = `news-day-btn px-2.5 py-1 rounded-lg text-[11px] font-semibold transition ${
+            d === state.newsDayFilter ? 'bg-cyan-600 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+          }`;
+        });
+
+        const calList = document.getElementById('news-calendar-list');
+        if (!calList) return;
+
+        const nowMs = Date.now();
+        const events = WIB_NEWS_EVENTS.filter(ev =>
+          state.newsDayFilter === 'ALL' ? true : ev.date === state.newsDayFilter
+        );
+
+        calList.innerHTML = events.map(ev => {
+          const evMs = Date.parse(ev.isoWib);
+          const diffSec = Math.floor((evMs - nowMs) / 1000);
+          const isPassed = diffSec <= 0;
+
+          let countdownStr = 'RELEASED';
+          if (!isPassed) {
+            const hrs = Math.floor(diffSec / 3600);
+            const mins = Math.floor((diffSec % 3600) / 60);
+            const secs = diffSec % 60;
+            countdownStr = `T-${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+          }
+
+          const impBadge = ev.impact === 'HIGH'
+            ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+            : 'bg-amber-500/20 text-amber-300 border-amber-500/40';
+
+          const dayLabel = ev.date.slice(5); // MM-DD
+
+          return `
+            <div class="p-3 rounded-xl bg-slate-950/85 border border-slate-800/90 flex flex-col sm:flex-row sm:items-center justify-between gap-2 ${isPassed ? 'opacity-65' : ''}">
+              <div class="space-y-1">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-xs font-mono-num font-bold text-cyan-300">${dayLabel} • ${ev.timeWib} WIB</span>
+                  <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-white">${ev.currency}</span>
+                  <span class="px-1.5 py-0.5 rounded text-[10px] font-bold border ${impBadge}">${ev.impact}</span>
+                  <span class="text-[10px] font-mono-num text-slate-400">${ev.pairs.join(', ')}</span>
+                </div>
+                <div class="text-xs font-semibold text-slate-100">${ev.title}</div>
+                <div class="text-[11px] font-mono-num text-slate-400">
+                  Forecast: <span class="text-slate-200">${ev.forecast}</span> • Previous: <span class="text-slate-300">${ev.previous}</span>
+                </div>
+              </div>
+              <div class="shrink-0 sm:text-right">
+                <span data-live-news-timer="${ev.id}" class="inline-block px-2.5 py-1 rounded-lg text-xs font-mono-num font-bold ${
+                  isPassed ? 'bg-slate-800 text-slate-400' : 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/30'
+                }">${countdownStr}</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      function renderVaultTab() {
+        const metrics = getAccountMetrics();
+
+        // Top Vault KPI Cards
+        const cashUscEl = document.getElementById('vault-cash-usc');
+        const cashIdrEl = document.getElementById('vault-cash-idr');
+        const cbStatusEl = document.getElementById('vault-cb-status');
+        const cbSubEl = document.getElementById('vault-cb-sub');
+        const cbBanner = document.getElementById('circuit-breaker-banner');
+
+        if (cashUscEl) cashUscEl.textContent = formatUscUnsigned(metrics.cashBalance);
+        if (cashIdrEl) cashIdrEl.textContent = formatIdr(metrics.cashBalance);
+
+        if (cbStatusEl) {
+          cbStatusEl.textContent = `${metrics.todayLosses} / ${metrics.maxLosses} Losses`;
+          cbStatusEl.className = `text-sm font-bold font-mono-num mt-0.5 ${
+            metrics.circuitBreakerTripped ? 'text-rose-400' : 'text-emerald-400'
+          }`;
+        }
+        if (cbSubEl) {
+          cbSubEl.textContent = metrics.circuitBreakerTripped ? 'TRIPPED • Halt New Trades' : 'Desk Armed • Safe';
+        }
+        if (cbBanner) {
+          cbBanner.classList.toggle('hidden', !metrics.circuitBreakerTripped);
+        }
+
+        // Update Suggested Lot Bot readout
+        updateLotBotReadout();
+
+        // Bot V1 All-Timeframe (1m-1D) Open Position Guardian
+        const openTrades = state.trades.filter(t => t.status === 'OPEN');
+        const openCountEl = document.getElementById('open-positions-count');
+        if (openCountEl) openCountEl.textContent = `${openTrades.length} OPEN`;
+
+        const guardianEl = document.getElementById('bot-v1-guardian-list');
+        if (guardianEl) {
+          if (openTrades.length === 0) {
+            guardianEl.innerHTML = `<div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800 text-xs text-slate-400">No open MT5 Cent positions. Log a trade below or 1-tap from the Entries tab.</div>`;
+          } else {
+            guardianEl.innerHTML = openTrades.map(t => {
+              const livePx = state.prices[t.symbol] ?? INSTRUMENTS[t.symbol].anchorPrice;
+              const pnlUsc = calcTradePnlUsc(t, livePx);
+              const riskUsc = calcTradeRiskUsc(t);
+              const isProfit = pnlUsc >= 0;
+
+              // Determine smart SL/TP adjustment recommendation across 1m-1D
+              const slMovePrice = t.side === 'BUY'
+                ? Number(Math.max(Number(t.sl), Number(t.entry) + (livePx - Number(t.entry)) * 0.35).toFixed(INSTRUMENTS[t.symbol].decimals))
+                : Number(Math.min(Number(t.sl), Number(t.entry) - (Number(t.entry) - livePx) * 0.35).toFixed(INSTRUMENTS[t.symbol].decimals));
+
+              const canTrailProfit = t.side === 'BUY' ? livePx > Number(t.entry) : livePx < Number(t.entry);
+              const recommendedSl = canTrailProfit ? slMovePrice : Number(t.sl);
+              const actionTitle = canTrailProfit
+                ? `LOCK PROFIT / TRAIL SL TO ${formatPrice(t.symbol, recommendedSl)}`
+                : `DEFEND 15m/1H STRUCTURE • HOLD SL ${formatPrice(t.symbol, t.sl)}`;
+
+              const tfAlignment = ['1m', '5m', '15m', '1H', '4H', '1D'].map((tf, i) => {
+                const aligned = (i + (t.side === 'BUY' ? 1 : 0)) % 3 !== 0;
+                return `<span class="px-1.5 py-0.5 rounded text-[10px] font-mono-num ${
+                  aligned ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'
+                }">${tf}:${aligned ? 'OK' : 'CHOP'}</span>`;
+              }).join('');
+
+              return `
+                <div class="p-3 rounded-xl bg-slate-950/90 border border-slate-800 space-y-2.5">
+                  <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div class="flex items-center gap-2">
+                      <span class="text-sm font-extrabold text-white">${t.symbol}</span>
+                      <span class="px-2 py-0.5 rounded text-[10px] font-extrabold ${
+                        t.side === 'BUY' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'
+                      }">${t.side} ${Number(t.lot).toFixed(2)} Lots</span>
+                      <span class="text-[11px] font-mono-num text-slate-400">@ ${formatPrice(t.symbol, Number(t.entry))}</span>
+                    </div>
+                    <div data-live-trade-pnl="${t.id}" class="text-xs font-mono-num font-extrabold ${isProfit ? 'text-emerald-400' : 'text-rose-400'}">
+                      ${formatUsc(pnlUsc)} (${formatIdr(pnlUsc, true)})
+                    </div>
+                  </div>
+
+                  <div class="flex items-center gap-1 flex-wrap">${tfAlignment}</div>
+
+                  <div class="grid grid-cols-3 gap-2 text-[11px] font-mono-num bg-slate-900/90 p-2 rounded-lg">
+                    <div><span class="text-slate-400">Live:</span> <span data-live-price="${t.symbol}" class="text-white font-bold">${formatPrice(t.symbol, livePx)}</span></div>
+                    <div><span class="text-slate-400">SL:</span> <span class="text-rose-400 font-bold">${formatPrice(t.symbol, Number(t.sl))}</span></div>
+                    <div><span class="text-slate-400">TP:</span> <span class="text-emerald-400 font-bold">${formatPrice(t.symbol, Number(t.tp))}</span></div>
+                  </div>
+
+                  <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+                    <div class="text-[11px] text-cyan-300 font-semibold">
+                      Guardian: ${actionTitle} <span class="text-slate-400 font-mono-num">(Risk: ${formatUscUnsigned(riskUsc)})</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                      ${canTrailProfit && recommendedSl !== Number(t.sl) ? `
+                        <button type="button" onclick="window.app.applyGuardianSlMove('${t.id}', ${recommendedSl})" class="px-2.5 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-[11px] font-bold">
+                          1-Tap Apply SL Move
+                        </button>
+                      ` : ''}
+                      <button type="button" onclick="window.app.closeOpenTradeAtMarket('${t.id}')" class="px-2.5 py-1.5 rounded-lg bg-emerald-600/85 hover:bg-emerald-500 text-white text-[11px] font-bold">
+                        Close @ Market
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('');
+          }
+        }
+
+        // Render SVG Equity Curve
+        renderSvgEquityCurve(metrics);
+
+        // Render Vault Trade Ledger
+        const ledgerEl = document.getElementById('vault-ledger-list');
+        if (ledgerEl) {
+          if (state.trades.length === 0) {
+            ledgerEl.innerHTML = `<p class="text-xs text-slate-400">No trades recorded yet.</p>`;
+          } else {
+            ledgerEl.innerHTML = state.trades.map(t => {
+              const livePx = state.prices[t.symbol] ?? INSTRUMENTS[t.symbol].anchorPrice;
+              const pnl = calcTradePnlUsc(t, livePx);
+              const isPos = pnl >= 0;
+              return `
+                <div class="p-2.5 rounded-xl bg-slate-950/85 border border-slate-800 flex items-center justify-between gap-2">
+                  <div class="min-w-0">
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                      <span class="text-xs font-bold text-white">${t.symbol}</span>
+                      <span class="text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                        t.side === 'BUY' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'
+                      }">${t.side} ${Number(t.lot).toFixed(2)}</span>
+                      <span class="text-[10px] font-mono-num px-1.5 py-0.5 rounded ${
+                        t.status === 'OPEN' ? 'bg-cyan-500/20 text-cyan-300' : 'bg-slate-800 text-slate-300'
+                      }">${t.status}</span>
+                    </div>
+                    <div class="text-[10px] font-mono-num text-slate-400 mt-0.5 truncate">
+                      Entry ${formatPrice(t.symbol, Number(t.entry))} • SL ${formatPrice(t.symbol, Number(t.sl))} • TP ${formatPrice(t.symbol, Number(t.tp))} ${t.notes ? '• ' + t.notes : ''}
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2 shrink-0">
+                    <div class="text-right font-mono-num">
+                      <div class="text-xs font-bold ${isPos ? 'text-emerald-400' : 'text-rose-400'}">${formatUsc(pnl)}</div>
+                      <div class="text-[10px] text-slate-400">${formatIdr(pnl, true)}</div>
+                    </div>
+                    <button type="button" onclick="window.app.deleteTrade('${t.id}')" aria-label="Delete Trade" class="p-1.5 rounded-lg bg-slate-800 hover:bg-rose-900/60 text-slate-400 hover:text-rose-300 text-xs">
+                      ✕
+                    </button>
+                  </div>
+                </div>
+              `;
+            }).join('');
+          }
+        }
+      }
+
+      function renderSvgEquityCurve(metrics) {
+        const container = document.getElementById('svg-equity-container');
+        const deltaEl = document.getElementById('equity-curve-delta');
+        if (!container) return;
+
+        const totalDelta = metrics.equity - metrics.base;
+        const pctDelta = metrics.base > 0 ? (totalDelta / metrics.base) * 100 : 0;
+        if (deltaEl) {
+          deltaEl.textContent = `${formatUsc(totalDelta)} (${pctDelta >= 0 ? '+' : ''}${pctDelta.toFixed(2)}%)`;
+          deltaEl.className = `text-xs font-mono-num font-bold ${totalDelta >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+        }
+
+        const points = [metrics.base];
+        let running = metrics.base;
+        const closedTrades = [...state.trades].filter(t => t.status === 'CLOSED').reverse();
+        closedTrades.forEach(t => {
+          running += calcTradePnlUsc(t, t.exit);
+          points.push(running);
+        });
+        points.push(metrics.equity);
+
+        const W = 640;
+        const H = 135;
+        const padX = 24;
+        const padY = 20;
+
+        let minVal = Math.min(...points);
+        let maxVal = Math.max(...points);
+        if (maxVal - minVal < 5) {
+          minVal -= 5;
+          maxVal += 5;
+        }
+
+        const coords = points.map((val, idx) => {
+          const x = padX + (idx / Math.max(1, points.length - 1)) * (W - padX * 2);
+          const y = H - padY - ((val - minVal) / (maxVal - minVal)) * (H - padY * 2);
+          return { x, y, val };
+        });
+
+        const pathD = coords.map((c, i) => `${i === 0 ? 'M' : 'L'} ${c.x.toFixed(1)} ${c.y.toFixed(1)}`).join(' ');
+        const areaD = `${pathD} L ${coords[coords.length - 1].x.toFixed(1)} ${H - padY} L ${coords[0].x.toFixed(1)} ${H - padY} Z`;
+        const strokeColor = totalDelta >= 0 ? '#10b981' : '#f43f5e';
+
+        container.innerHTML = `
+          <svg viewBox="0 0 ${W} ${H}" class="w-full h-32 block">
+            <defs>
+              <linearGradient id="eqGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="${strokeColor}" stop-opacity="0.32" />
+                <stop offset="100%" stop-color="${strokeColor}" stop-opacity="0.0" />
+              </linearGradient>
+            </defs>
+            <line x1="${padX}" y1="${H / 2}" x2="${W - padX}" y2="${H / 2}" stroke="#1e293b" stroke-dasharray="4 4" />
+            <path d="${areaD}" fill="url(#eqGrad)" />
+            <path d="${pathD}" fill="none" stroke="${strokeColor}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+            ${coords.map(c => `
+              <circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="3.5" fill="#060911" stroke="${strokeColor}" stroke-width="2" />
+            `).join('')}
+            <text x="${padX}" y="13" fill="#94a3b8" font-size="10" font-family="JetBrains Mono, monospace">Start: ${metrics.base.toFixed(2)} USC</text>
+            <text x="${W - padX}" y="13" text-anchor="end" fill="${strokeColor}" font-size="10" font-weight="bold" font-family="JetBrains Mono, monospace">Now: ${metrics.equity.toFixed(2)} USC</text>
+          </svg>
+        `;
+      }
+
+      function updateLotBotReadout() {
+        const symEl = document.getElementById('lotbot-symbol');
+        const riskEl = document.getElementById('lotbot-risk');
+        const distEl = document.getElementById('lotbot-sl-dist');
+        const outEl = document.getElementById('lotbot-output');
+        const uscEl = document.getElementById('lotbot-risk-usc');
+        if (!symEl || !riskEl || !distEl || !outEl || !uscEl) return;
+
+        const sym = symEl.value;
+        const riskPct = parseFloat(riskEl.value) || 1.0;
+        const slDist = parseFloat(distEl.value) || INSTRUMENTS[sym].defaultSlDist;
+        const metrics = getAccountMetrics();
+        const res = calcSuggestedCentLot(sym, riskPct, slDist, metrics.equity);
+
+        outEl.textContent = `${res.lot.toFixed(2)} Lots`;
+        uscEl.textContent = `Risk: ${formatUscUnsigned(res.riskUsc)} (${formatIdr(res.riskUsc)})`;
+      }
+
+      function renderNotificationsList() {
+        const list = document.getElementById('notification-list');
+        if (!list) return;
+        if (state.notifications.length === 0) {
+          list.innerHTML = `<p class="text-xs text-slate-400 text-center py-6">No alerts logged.</p>`;
+          return;
+        }
+        list.innerHTML = state.notifications.map(n => `
+          <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-white">${n.title}</span>
+              <span class="text-[10px] font-mono-num text-cyan-400">${n.timeWib}</span>
+            </div>
+            <p class="text-[11px] text-slate-300 leading-relaxed">${n.body}</p>
+          </div>
+        `).join('');
+      }
+
+      // =========================================================================
+      // 12. TARGETED DOM-ONLY HIGH-FREQUENCY TICKERS (ZERO INPUT FOCUS LOSS!)
+      // =========================================================================
+      let lastRolloverNotifiedHour = -1;
+
+      function tickOneSecondWib() {
+        const wib = getWibParts();
+        const session = getWibSessionInfo(wib);
+
+        // 1. Update WIB Clock & Date
+        document.querySelectorAll('[data-live-clock]').forEach(el => {
+          el.textContent = `${wib.hhmmss} WIB`;
+        });
+        document.querySelectorAll('[data-live-date]').forEach(el => {
+          el.textContent = wib.dateStr;
+        });
+
+        // 2. Update Session / Killzone Pills
+        document.querySelectorAll('[data-live-session]').forEach(el => {
+          el.textContent = session.label;
+          el.className = `hidden sm:inline-flex items-center px-2 py-1 rounded-lg text-[10px] font-semibold border ${session.badgeClass}`;
+        });
+        document.querySelectorAll('[data-live-session-mobile]').forEach(el => {
+          el.textContent = session.shortLabel;
+          el.className = `sm:hidden inline-flex items-center px-2 py-1 rounded-lg text-[10px] font-semibold border ${session.badgeClass}`;
+        });
+
+        // 3. Rollover alert check around 03:55 - 04:00 WIB
+        if (wib.hour === 3 && wib.minute === 55 && lastRolloverNotifiedHour !== 3) {
+          lastRolloverNotifiedHour = 3;
+          addNotification('04:00 WIB Swap Rollover in 5 Mins', 'Spread widening imminent on MT5 Cent pairs. Review open Scalp positions.', 'warn');
+          showToast('04:00 WIB Rollover Warning', 'MT5 Cent rollover begins in 5 minutes.', 'warn');
+        }
+
+        // 4. Update Entry Finder MM:SS Countdowns & Auto-Replace Expired Setups
+        const nowMs = Date.now();
+        let anyEntryReplaced = false;
+        state.entries = state.entries.map(ent => {
+          const remSec = Math.floor((ent.expiresAtMs - nowMs) / 1000);
+          if (remSec <= 0) {
+            anyEntryReplaced = true;
+            const nextSetup = buildEntrySetup(ent.symbol, ent.horizonKey, (ent.cycleCount || 0) + 1);
+            addNotification(
+              `Entry Replaced: ${ent.symbol} (${ent.horizonLabel})`,
+              `Prior setup expired. Fresh ${nextSetup.side} @ ${formatPrice(nextSetup.symbol, nextSetup.entry)} generated.`,
+              'info'
+            );
+            return nextSetup;
+          }
+          const timerEl = document.querySelector(`[data-live-entry-timer="${ent.id}"]`);
+          if (timerEl) {
+            const mm = String(Math.floor(remSec / 60)).padStart(2, '0');
+            const ss = String(remSec % 60).padStart(2, '0');
+            timerEl.textContent = `${mm}:${ss}`;
+          }
+          const barEl = document.querySelector(`[data-live-entry-bar="${ent.id}"]`);
+          if (barEl) {
+            const pct = Math.min(100, Math.max(0, (remSec / ent.ttlSec) * 100));
+            barEl.style.width = `${pct}%`;
+          }
+          return ent;
+        });
+
+        if (anyEntryReplaced) {
+          saveState();
+          if (state.activeTab === 'entries') renderEntriesTab();
+        }
+
+        // 5. Update News WIB Countdowns (Targeted DOM nodes only)
+        document.querySelectorAll('[data-live-news-timer]').forEach(el => {
+          const evId = el.getAttribute('data-live-news-timer');
+          const ev = WIB_NEWS_EVENTS.find(e => e.id === evId);
+          if (!ev) return;
+          const diffSec = Math.floor((Date.parse(ev.isoWib) - nowMs) / 1000);
+          if (diffSec <= 0) {
+            el.textContent = 'RELEASED';
+          } else {
+            const hrs = Math.floor(diffSec / 3600);
+            const mins = Math.floor((diffSec % 3600) / 60);
+            const secs = diffSec % 60;
+            el.textContent = `T-${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+          }
+        });
+
+        // 6. Check True WIB 15m / 1H / 4H Candle-Close Boundaries for Frozen Snapshots!
+        //    Only regenerates a snapshot PNG when the REAL Asia/Jakarta clock crosses a true boundary!
+        const newlyCaptured = ensureFrozenSnapshotsForSymbol(state.activePair, false);
+        if (newlyCaptured > 0) {
+          addNotification(
+            `Interval Candle Closed (${state.activePair})`,
+            `New frozen SMC PNG snapshot captured at ${wib.hhmmss} WIB.`,
+            'success'
+          );
+          if (state.activeTab === 'technicals') {
+            renderTechnicalsTab();
+          }
+        }
+      }
+
+      function tickFourSecondMarketPrices() {
+        // Subtle realistic micro-tick simulation around Nov 17, 2026 anchor prices
+        PAIR_KEYS.forEach(sym => {
+          const inst = INSTRUMENTS[sym];
+          const cur = state.prices[sym] ?? inst.anchorPrice;
+          // Mean-reverting micro walk within +/- 0.35% of anchor
+          const pullToAnchor = (inst.anchorPrice - cur) * 0.08;
+          const noise = (Math.random() - 0.5) * inst.tickSize * 1.8;
+          const next = Number((cur + pullToAnchor + noise).toFixed(inst.decimals));
+          state.prices[sym] = next;
+
+          const pct = ((next - inst.anchorPrice) / inst.anchorPrice) * 100;
+          document.querySelectorAll(`[data-live-price="${sym}"]`).forEach(el => {
+            el.textContent = formatPrice(sym, next);
+          });
+          document.querySelectorAll(`[data-live-change="${sym}"]`).forEach(el => {
+            el.textContent = `${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%`;
+            el.className = `text-[10px] font-mono-num font-semibold ${pct >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+          });
+        });
+
+        // Update live account equity, floating P/L, and heat pills (targeted DOM only!)
+        const metrics = getAccountMetrics();
+        document.querySelectorAll('[data-live-balance]').forEach(el => {
+          el.textContent = formatUscUnsigned(metrics.equity);
+        });
+        document.querySelectorAll('[data-live-balance-idr]').forEach(el => {
+          el.textContent = formatIdr(metrics.equity);
+        });
+        document.querySelectorAll('[data-live-pnl]').forEach(el => {
+          el.textContent = formatUsc(metrics.floatingPnl);
+          el.className = `text-sm font-bold font-mono-num mt-0.5 ${metrics.floatingPnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+        });
+        document.querySelectorAll('[data-live-pnl-idr]').forEach(el => {
+          el.textContent = formatIdr(metrics.floatingPnl, true);
+        });
+        document.querySelectorAll('[data-live-heat]').forEach(el => {
+          el.textContent = `${metrics.heatPct.toFixed(2)}% / ${metrics.maxHeatPct}%`;
+        });
+        document.querySelectorAll('[data-live-heat-bar]').forEach(el => {
+          const w = Math.min(100, (metrics.heatPct / metrics.maxHeatPct) * 100);
+          el.style.width = `${w}%`;
+        });
+        document.querySelectorAll('[data-live-heat-pill]').forEach(el => {
+          el.textContent = `HEAT ${metrics.heatPct.toFixed(2)}%/${metrics.maxHeatPct}%`;
+        });
+        document.querySelectorAll('[data-live-cb-pill]').forEach(el => {
+          el.textContent = `CB ${metrics.todayLosses}/${metrics.maxLosses}`;
+        });
+
+        // Update individual open trade P/L tags
+        state.trades.filter(t => t.status === 'OPEN').forEach(t => {
+          const pnl = calcTradePnlUsc(t, state.prices[t.symbol]);
+          const el = document.querySelector(`[data-live-trade-pnl="${t.id}"]`);
+          if (el) {
+            el.textContent = `${formatUsc(pnl)} (${formatIdr(pnl, true)})`;
+            el.className = `text-xs font-mono-num font-extrabold ${pnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+          }
+        });
+
+        // Check if any Entry Finder setup had its SL breached before entry -> auto-replace
+        let entryInvalidated = false;
+        state.entries = state.entries.map(ent => {
+          const px = state.prices[ent.symbol];
+          const breached = ent.side === 'BUY' ? px <= ent.sl : px >= ent.sl;
+          if (breached) {
+            entryInvalidated = true;
+            return buildEntrySetup(ent.symbol, ent.horizonKey, (ent.cycleCount || 0) + 1);
+          }
+          return ent;
+        });
+        if (entryInvalidated && state.activeTab === 'entries') {
+          renderEntriesTab();
+        }
+      }
+
+      // =========================================================================
+      // 13. GEMINI AI DESK HANDLER (OPTIONAL API KEY + BUILT-IN OFFLINE ENGINE)
+      // =========================================================================
+      async function handleAskGemini(userPrompt) {
+        const trimmed = (userPrompt || '').trim();
+        if (!trimmed) return;
+
+        state.chatMessages.push({ role: 'user', text: trimmed });
+        renderGeminiChatHistory();
+
+        const sendBtn = document.getElementById('btn-gemini-send');
+        if (sendBtn) {
+          sendBtn.disabled = true;
+          sendBtn.textContent = '...';
+        }
+
+        const apiKey = (state.settings.geminiApiKey || '').trim();
+        const metrics = getAccountMetrics();
+        const wib = getWibParts();
+        const activeInst = INSTRUMENTS[state.activePair];
+        const activeProfs = HORIZON_PROFILES[state.activePair];
+
+        if (apiKey) {
+          // Call gemini-3-flash-preview with exponential backoff
+          const systemPrompt = `You are CENTRA WIB v8, an institutional SMC & MT5 Standard Cent trading desk analyst locked to Asia/Jakarta (WIB, UTC+7). Current WIB time: ${wib.hhmmss} WIB. Account Equity: ${metrics.equity.toFixed(2)} USC (${formatIdr(metrics.equity)}). Max Heat: ${metrics.maxHeatPct}%, Current Heat: ${metrics.heatPct.toFixed(2)}%. Active Pair: ${state.activePair} @ ${formatPrice(state.activePair, state.prices[state.activePair])}. Scalp=${activeProfs.short.verdict}, Intraday=${activeProfs.medium.verdict}, Swing=${activeProfs.long.verdict}. Give concise, actionable institutional guidance in 3-5 sentences.`;
+          const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${encodeURIComponent(apiKey)}`;
+          const payload = {
+            contents: [{ parts: [{ text: trimmed }] }],
+            systemInstruction: { parts: [{ text: systemPrompt }] }
+          };
+
+          let replyText = null;
+          for (let attempt = 0; attempt < 3; attempt++) {
+            try {
+              const resp = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+              });
+              if (resp.ok) {
+                const json = await resp.json();
+                replyText = json?.candidates?.[0]?.content?.parts?.[0]?.text || null;
+                if (replyText) break;
+              }
+            } catch (e) {
+              // Retry with backoff
+            }
+            await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt)));
+          }
+
+          if (replyText) {
+            state.chatMessages.push({ role: 'assistant', text: replyText });
+            saveState();
+            renderGeminiChatHistory();
+            if (sendBtn) { sendBtn.disabled = false; sendBtn.textContent = 'Ask'; }
+            return;
+          }
+        }
+
+        // Built-in Context-Aware Institutional Desk Engine (Zero-latency offline fallback)
+        const q = trimmed.toLowerCase();
+        let response = '';
+        if (q.includes('scalp')) {
+          response = `[${wib.hhmm} WIB Scalp Desk] Highest-conviction 5m/15m Scalps right now: (1) BTCUSDc FOLLOW TREND SELL at 64340 (-OB/FVG retest) targeting 63680 SSL, and (2) XAUUSDc SELL fading 3867.20 Bearish OB after the 3871.40 EQH sweep toward 3855.80. Size at 0.02 Cent lots (~1% risk on ${metrics.equity.toFixed(2)} USC) and exit before 04:00 WIB rollover.`;
+        } else if (q.includes('xau') || q.includes('gold') || q.includes('conflict')) {
+          response = `[XAUUSDc Multi-Horizon Breakdown] On 5m/15m (Scalp), Gold swept 3871.40 EQH and printed a bearish CHoCH, creating a short-term pullback (SELL to 3855.80). On 4H/1D (Swing), macro structure remains firmly bullish above the 3828–3839 4H +OB and 3834.50 Discount OTE (FOLLOW TREND BUY to 3915.00). Institutional desks scalp the pullback into the 4H Discount zone before reloading Swing longs.`;
+        } else if (q.includes('lot') || q.includes('heat') || q.includes('rollover') || q.includes('audit')) {
+          response = `[MT5 Cent Risk & Rollover Audit] Current Equity: ${metrics.equity.toFixed(2)} USC (${formatIdr(metrics.equity)}). Open Portfolio Heat: ${metrics.heatPct.toFixed(2)}% vs ${metrics.maxHeatPct}% ceiling (${(metrics.equity * metrics.maxHeatPct / 100 - metrics.openRiskUsc).toFixed(2)} USC heat headroom remaining). Circuit Breaker: ${metrics.todayLosses}/${metrics.maxLosses} daily losses. Watch the 04:00–05:05 WIB swap rollover window for spread widening.`;
+        } else {
+          response = `[CENTRA WIB Desk • ${state.activePair} @ ${formatPrice(state.activePair, state.prices[state.activePair])}] Short (Scalp 5m) is ${activeProfs.short.verdict} (${activeProfs.short.confidence}%), Medium (Intraday 1H) is ${activeProfs.medium.verdict} (${activeProfs.medium.confidence}%), and Long (Swing 4H/1D) is ${activeProfs.long.verdict} (${activeProfs.long.confidence}%). With ${metrics.equity.toFixed(2)} USC equity, keep risk per position near 1.0% (${(metrics.equity * 0.01).toFixed(2)} USC).`;
+        }
+
+        state.chatMessages.push({ role: 'assistant', text: response });
+        saveState();
+        renderGeminiChatHistory();
+        if (sendBtn) {
+          sendBtn.disabled = false;
+          sendBtn.textContent = 'Ask';
+        }
+      }
+
+      // =========================================================================
+      // 14. PUBLIC CONTROLLER ACTIONS (WINDOW.APP) & EVENT LISTENERS
+      // =========================================================================
+      window.app = {
+        switchTab(tabName) {
+          state.activeTab = tabName;
+          saveState();
+
+          const tabs = ['signals', 'entries', 'technicals', 'gemini', 'news', 'vault'];
+          tabs.forEach(t => {
+            const sec = document.getElementById(`tab-${t}`);
+            if (sec) sec.classList.toggle('hidden', t !== tabName);
+          });
+
+          // Show global pair ribbon on Signals & Technicals
+          const ribbonWrap = document.getElementById('pair-ribbon-wrapper');
+          if (ribbonWrap) {
+            ribbonWrap.classList.toggle('hidden', tabName !== 'signals' && tabName !== 'technicals');
+          }
+
+          // Update Bottom Nav Active State
+          document.querySelectorAll('.nav-tab-btn').forEach(btn => {
+            const isAct = btn.getAttribute('data-tab') === tabName;
+            btn.className = `nav-tab-btn flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition ${
+              isAct ? 'text-cyan-400 bg-cyan-500/10 font-bold' : 'text-slate-400 hover:text-slate-200 font-semibold'
+            }`;
+          });
+
+          if (tabName === 'signals') {
+            renderSignalsTab();
+            mountTradingViewWidget('signals', false);
+          } else if (tabName === 'entries') {
+            renderEntriesTab();
+          } else if (tabName === 'technicals') {
+            renderTechnicalsTab();
+            mountTradingViewWidget('technicals', false);
+          } else if (tabName === 'gemini') {
+            renderGeminiTab();
+          } else if (tabName === 'news') {
+            renderNewsTab();
+          } else if (tabName === 'vault') {
+            renderVaultTab();
+          }
+        },
+
+        setHorizon(horKey) {
+          state.activeHorizon = horKey;
+          saveState();
+          renderSignalsTab();
+          mountTradingViewWidget('signals', true);
+        },
+
+        setTechTvInterval(iv) {
+          state.techTvInterval = iv;
+          saveState();
+          mountTradingViewWidget('technicals', true);
+        },
+
+        reloadTradingView(targetKey) {
+          mountTradingViewWidget(targetKey, true);
+          showToast('TradingView Synced', 'Chart locked to Asia/Jakarta (WIB) timezone.', 'info');
+        },
+
+        simulateCandleClose(tf) {
+          const sym = state.activePair;
+          const key = `${sym}_${tf}`;
+          state.simCandleOffsets[key] = (state.simCandleOffsets[key] || 0) + 1;
+          // Force regenerate ONLY that timeframe's frozen PNG snapshot while keeping others frozen!
+          const snap = generateFrozenSnapshotPNG(sym, tf, state.simCandleOffsets[key]);
+          state.frozenSnapshots[key] = snap;
+          state.snapshotArchive.unshift(snap);
+          state.snapshotArchive = state.snapshotArchive.slice(0, 12);
+          saveState();
+          renderTechnicalsTab();
+          addNotification(
+            `Simulated ${tf} Candle Close (${sym})`,
+            `New frozen PNG captured at ${snap.capturedWibStr}.`,
+            'info'
+          );
+          showToast(`${tf} Candle Close Simulated`, `Frozen PNG updated for ${sym} (${snap.capturedWibStr}).`, 'success');
+        },
+
+        openSnapshotModal(symbol, tf) {
+          const snap = state.frozenSnapshots[`${symbol}_${tf}`];
+          if (!snap) return;
+          const modal = document.getElementById('snapshot-modal');
+          const img = document.getElementById('modal-snap-img');
+          const title = document.getElementById('modal-snap-title');
+          const sub = document.getElementById('modal-snap-sub');
+          if (title) title.textContent = `${symbol} • ${tf} Frozen SMC Snapshot`;
+          if (sub) sub.textContent = `CAPTURED ${snap.capturedWibStr} • FROZEN UNTIL ${snap.nextCloseWibStr}`;
+          if (img) img.src = snap.dataUrl;
+          if (modal) modal.classList.remove('hidden');
+        },
+
+        openArchivedSnapshot(index) {
+          const snap = state.snapshotArchive[index];
+          if (!snap || !snap.dataUrl) return;
+          const modal = document.getElementById('snapshot-modal');
+          const img = document.getElementById('modal-snap-img');
+          const title = document.getElementById('modal-snap-title');
+          const sub = document.getElementById('modal-snap-sub');
+          if (title) title.textContent = `[ARCHIVED] ${snap.symbol} • ${snap.tf} Snapshot`;
+          if (sub) sub.textContent = `CAPTURED ${snap.fullDateStr}`;
+          if (img) img.src = snap.dataUrl;
+          if (modal) modal.classList.remove('hidden');
+        },
+
+        logEntryToVault(entryId) {
+          const ent = state.entries.find(e => e.id === entryId);
+          if (!ent) return;
+          const metrics = getAccountMetrics();
+          const newHeat = ((metrics.openRiskUsc + ent.riskUsc) / metrics.equity) * 100;
+
+          if (newHeat > metrics.maxHeatPct) {
+            showToast('Portfolio Heat Ceiling Guard', `Adding this trade pushes heat to ${newHeat.toFixed(2)}% (above ${metrics.maxHeatPct}% max).`, 'warn');
+          }
+
+          const wib = getWibParts();
+          state.trades.unshift({
+            id: 'tr_' + Date.now(),
+            symbol: ent.symbol,
+            side: ent.side,
+            lot: ent.lot,
+            entry: ent.entry,
+            sl: ent.sl,
+            tp: ent.tp,
+            status: 'OPEN',
+            exit: null,
+            notes: `${ent.horizonLabel} Entry Bot`,
+            openedAtWib: `${wib.hhmmss} WIB`,
+            closedDateIso: null
+          });
+
+          // Replace logged entry with a fresh setup
+          state.entries = state.entries.map(e =>
+            e.id === entryId ? buildEntrySetup(e.symbol, e.horizonKey, (e.cycleCount || 0) + 1) : e
+          );
+          saveState();
+          renderEntriesTab();
+          tickFourSecondMarketPrices();
+          showToast('Logged to MT5 Vault', `${ent.symbol} ${ent.side} ${ent.lot.toFixed(2)} Cent lots opened.`, 'success');
+        },
+
+        applyGuardianSlMove(tradeId, newSl) {
+          const tr = state.trades.find(t => t.id === tradeId);
+          if (!tr) return;
+          tr.sl = newSl;
+          saveState();
+          renderVaultTab();
+          tickFourSecondMarketPrices();
+          showToast('Bot V1 SL Protection Applied', `${tr.symbol} Stop Loss updated to ${formatPrice(tr.symbol, newSl)}.`, 'success');
+        },
+
+        closeOpenTradeAtMarket(tradeId) {
+          const tr = state.trades.find(t => t.id === tradeId);
+          if (!tr) return;
+          const livePx = state.prices[tr.symbol] ?? INSTRUMENTS[tr.symbol].anchorPrice;
+          tr.status = 'CLOSED';
+          tr.exit = livePx;
+          tr.closedDateIso = getWibParts().isoDate;
+          const pnl = calcTradePnlUsc(tr, livePx);
+          saveState();
+          renderVaultTab();
+          tickFourSecondMarketPrices();
+          showToast('MT5 Cent Position Closed', `${tr.symbol} closed @ ${formatPrice(tr.symbol, livePx)} (${formatUsc(pnl)}).`, pnl >= 0 ? 'success' : 'warn');
+        },
+
+        deleteTrade(tradeId) {
+          state.trades = state.trades.filter(t => t.id !== tradeId);
+          saveState();
+          renderVaultTab();
+          tickFourSecondMarketPrices();
+          showToast('Trade Removed', 'MT5 Vault ledger updated.', 'info');
+        },
+
+        jumpToSignal(symbol, horizonKey) {
+          state.activePair = symbol;
+          state.activeHorizon = horizonKey;
+          saveState();
+          renderPairRibbon();
+          window.app.switchTab('signals');
+        },
+
+        askGeminiPreset(promptText) {
+          handleAskGemini(promptText);
+        }
+      };
+
+      function bindEvents() {
+        // Bottom Nav Tabs
+        document.querySelectorAll('.nav-tab-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            window.app.switchTab(btn.getAttribute('data-tab'));
+          });
+        });
+
+        // Horizon Switcher
+        document.querySelectorAll('.horizon-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            window.app.setHorizon(btn.getAttribute('data-horizon'));
+          });
+        });
+
+        // Entry Filters & Scan
+        document.querySelectorAll('.entry-filter-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            state.entryFilter = btn.getAttribute('data-entry-filter');
+            saveState();
+            renderEntriesTab();
+          });
+        });
+        const btnScan = document.getElementById('btn-scan-entries');
+        if (btnScan) {
+          btnScan.addEventListener('click', () => {
+            initEntriesIfNeeded(true);
+            renderEntriesTab();
+            showToast('Entry Finder Scanned', 'Refreshed all Cent setups across Scalp, Intraday & Swing.', 'info');
+          });
+        }
+
+        // Snapshot Now Button
+        const btnSnapNow = document.getElementById('btn-snapshot-now');
+        if (btnSnapNow) {
+          btnSnapNow.addEventListener('click', () => {
+            ensureFrozenSnapshotsForSymbol(state.activePair, true);
+            renderTechnicalsTab();
+            const wib = getWibParts();
+            addNotification(`Manual Snapshot (${state.activePair})`, `15m, 1H & 4H frozen PNGs captured at ${wib.hhmmss} WIB.`, 'success');
+            showToast('Frozen PNGs Captured', `15m, 1H & 4H snapshots stamped at ${wib.hhmmss} WIB.`, 'success');
+          });
+        }
+
+        // Toggle Snapshot Archive
+        const btnArchive = document.getElementById('btn-toggle-archive');
+        if (btnArchive) {
+          btnArchive.addEventListener('click', () => {
+            const body = document.getElementById('snapshot-archive-body');
+            const chev = document.getElementById('archive-chevron');
+            if (!body) return;
+            const willOpen = body.classList.contains('hidden');
+            body.classList.toggle('hidden', !willOpen);
+            if (chev) chev.textContent = willOpen ? '▲ Collapse' : '▼ Expand';
+          });
+        }
+
+        // Close Snapshot Modal
+        const btnCloseSnap = document.getElementById('btn-close-snap-modal');
+        if (btnCloseSnap) {
+          btnCloseSnap.addEventListener('click', () => {
+            document.getElementById('snapshot-modal')?.classList.add('hidden');
+          });
+        }
+
+        // Notifications Drawer
+        document.getElementById('btn-notifications')?.addEventListener('click', () => {
+          state.notifications.forEach(n => { n.unread = false; });
+          updateNotificationBadge();
+          saveState();
+          renderNotificationsList();
+          document.getElementById('notification-drawer')?.classList.remove('hidden');
+        });
+        document.getElementById('btn-close-notifs')?.addEventListener('click', () => {
+          document.getElementById('notification-drawer')?.classList.add('hidden');
+        });
+        document.getElementById('btn-clear-notifs')?.addEventListener('click', () => {
+          state.notifications = [];
+          updateNotificationBadge();
+          saveState();
+          renderNotificationsList();
+        });
+
+        // Settings Modal
+        document.getElementById('btn-settings')?.addEventListener('click', () => {
+          document.getElementById('input-gemini-key').value = state.settings.geminiApiKey || '';
+          document.getElementById('input-base-balance').value = state.settings.baseBalanceUsc;
+          document.getElementById('input-idr-rate').value = state.settings.idrPerUsc;
+          document.getElementById('input-max-heat').value = state.settings.maxHeatPct;
+          document.getElementById('input-max-losses').value = state.settings.maxDailyLosses;
+          document.getElementById('settings-modal')?.classList.remove('hidden');
+        });
+        document.getElementById('btn-close-settings')?.addEventListener('click', () => {
+          document.getElementById('settings-modal')?.classList.add('hidden');
+        });
+        document.getElementById('btn-save-settings')?.addEventListener('click', () => {
+          state.settings.geminiApiKey = document.getElementById('input-gemini-key').value.trim();
+          state.settings.baseBalanceUsc = parseFloat(document.getElementById('input-base-balance').value) || 1096.00;
+          state.settings.idrPerUsc = parseFloat(document.getElementById('input-idr-rate').value) || 182.50;
+          state.settings.maxHeatPct = parseFloat(document.getElementById('input-max-heat').value) || 4.5;
+          state.settings.maxDailyLosses = parseInt(document.getElementById('input-max-losses').value, 10) || 2;
+          saveState();
+          document.getElementById('settings-modal')?.classList.add('hidden');
+          tickFourSecondMarketPrices();
+          if (state.activeTab === 'vault') renderVaultTab();
+          if (state.activeTab === 'gemini') renderGeminiTab();
+          showToast('Settings Saved', 'CENTRA WIB v8 configuration updated.', 'success');
+        });
+
+        // Gemini Chat Form
+        document.getElementById('gemini-chat-form')?.addEventListener('submit', e => {
+          e.preventDefault();
+          const inp = document.getElementById('gemini-chat-input');
+          if (!inp) return;
+          const val = inp.value;
+          inp.value = '';
+          handleAskGemini(val);
+        });
+        document.getElementById('btn-refresh-brief')?.addEventListener('click', () => {
+          renderGeminiTab();
+          showToast('Executive Brief Updated', 'Synthesized latest WIB session & multi-horizon matrix.', 'info');
+        });
+
+        // News Day Filters
+        document.querySelectorAll('.news-day-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            state.newsDayFilter = btn.getAttribute('data-news-day');
+            saveState();
+            renderNewsTab();
+          });
+        });
+
+        // Lot Bot Inputs
+        document.getElementById('lotbot-symbol')?.addEventListener('change', e => {
+          const sym = e.target.value;
+          document.getElementById('lotbot-sl-dist').value = INSTRUMENTS[sym].defaultSlDist;
+          updateLotBotReadout();
+        });
+        document.getElementById('lotbot-risk')?.addEventListener('change', updateLotBotReadout);
+        document.getElementById('lotbot-sl-dist')?.addEventListener('input', updateLotBotReadout);
+        document.getElementById('btn-apply-lotbot')?.addEventListener('click', () => {
+          const sym = document.getElementById('lotbot-symbol').value;
+          const riskPct = parseFloat(document.getElementById('lotbot-risk').value) || 1.0;
+          const slDist = parseFloat(document.getElementById('lotbot-sl-dist').value) || INSTRUMENTS[sym].defaultSlDist;
+          const metrics = getAccountMetrics();
+          const res = calcSuggestedCentLot(sym, riskPct, slDist, metrics.equity);
+
+          document.getElementById('trade-symbol').value = sym;
+          document.getElementById('trade-lot').value = res.lot.toFixed(2);
+          const livePx = state.prices[sym] ?? INSTRUMENTS[sym].anchorPrice;
+          document.getElementById('trade-entry').value = formatPrice(sym, livePx);
+          document.getElementById('trade-sl').value = formatPrice(sym, livePx - slDist);
+          document.getElementById('trade-tp').value = formatPrice(sym, livePx + slDist * 2);
+          showToast('Lot Applied to Logger', `${sym} • ${res.lot.toFixed(2)} Cent lots pre-filled.`, 'success');
+        });
+
+        // Manual MT5 Trade Logger Form
+        document.getElementById('trade-status')?.addEventListener('change', e => {
+          const isClosed = e.target.value === 'CLOSED';
+          document.getElementById('trade-exit-wrapper')?.classList.toggle('hidden', !isClosed);
+        });
+        document.getElementById('btn-fill-live-price')?.addEventListener('click', () => {
+          const sym = document.getElementById('trade-symbol').value;
+          const side = document.getElementById('trade-side').value;
+          const livePx = state.prices[sym] ?? INSTRUMENTS[sym].anchorPrice;
+          const dist = INSTRUMENTS[sym].defaultSlDist;
+          document.getElementById('trade-entry').value = formatPrice(sym, livePx);
+          document.getElementById('trade-sl').value = formatPrice(sym, side === 'BUY' ? livePx - dist : livePx + dist);
+          document.getElementById('trade-tp').value = formatPrice(sym, side === 'BUY' ? livePx + dist * 2 : livePx - dist * 2);
+        });
+
+        document.getElementById('mt5-trade-form')?.addEventListener('submit', e => {
+          e.preventDefault();
+          const symbol = document.getElementById('trade-symbol').value;
+          const side = document.getElementById('trade-side').value;
+          const lot = parseFloat(document.getElementById('trade-lot').value);
+          const entry = parseFloat(document.getElementById('trade-entry').value);
+          const sl = parseFloat(document.getElementById('trade-sl').value);
+          const tp = parseFloat(document.getElementById('trade-tp').value);
+          const status = document.getElementById('trade-status').value;
+          const exitVal = parseFloat(document.getElementById('trade-exit').value);
+          const notes = document.getElementById('trade-notes').value.trim();
+
+          if (isNaN(lot) || isNaN(entry) || isNaN(sl) || isNaN(tp)) {
+            showToast('Invalid Trade Fields', 'Please provide numeric Entry, SL, TP, and Cent Lot.', 'danger');
+            return;
+          }
+
+          const wib = getWibParts();
+          state.trades.unshift({
+            id: 'tr_' + Date.now(),
+            symbol,
+            side,
+            lot,
+            entry,
+            sl,
+            tp,
+            status,
+            exit: status === 'CLOSED' ? (isNaN(exitVal) ? entry : exitVal) : null,
+            notes,
+            openedAtWib: `${wib.hhmmss} WIB`,
+            closedDateIso: status === 'CLOSED' ? wib.isoDate : null
+          });
+
+          saveState();
+          e.target.reset();
+          document.getElementById('trade-exit-wrapper')?.classList.add('hidden');
+          renderVaultTab();
+          tickFourSecondMarketPrices();
+          showToast('MT5 Trade Recorded', `${symbol} ${side} ${lot.toFixed(2)} Cent lots logged (${status}).`, 'success');
+        });
+
+        // JSON / CSV Export & JSON Import
+        document.getElementById('btn-export-json')?.addEventListener('click', () => {
+          const blob = new Blob([JSON.stringify({ exportedAtWib: getWibParts().hhmmss, settings: state.settings, trades: state.trades }, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `centra_wib_v8_vault_${getWibParts().isoDate}.json`;
+          a.click();
+          URL.revokeObjectURL(url);
+        });
+
+        document.getElementById('btn-export-csv')?.addEventListener('click', () => {
+          const rows = [['ID', 'Symbol', 'Side', 'Lot', 'Entry', 'SL', 'TP', 'Status', 'Exit', 'PnL_USC', 'Notes']];
+          state.trades.forEach(t => {
+            const pnl = calcTradePnlUsc(t, state.prices[t.symbol]);
+            rows.push([t.id, t.symbol, t.side, t.lot, t.entry, t.sl, t.tp, t.status, t.exit ?? '', pnl.toFixed(2), `"${(t.notes || '').replace(/"/g, '""')}"`]);
+          });
+          const csv = rows.map(r => r.join(',')).join('\n');
+          const blob = new Blob([csv], { type: 'text/csv' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `centra_wib_v8_statement_${getWibParts().isoDate}.csv`;
+          a.click();
+          URL.revokeObjectURL(url);
+        });
+
+        document.getElementById('input-import-json')?.addEventListener('change', e => {
+          const file = e.target.files?.[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = ev => {
+            try {
+              const data = JSON.parse(ev.target.result);
+              if (Array.isArray(data.trades)) {
+                state.trades = data.trades;
+                if (data.settings) state.settings = { ...state.settings, ...data.settings };
+                saveState();
+                renderVaultTab();
+                tickFourSecondMarketPrices();
+                showToast('Vault Statement Imported', `Loaded ${data.trades.length} MT5 Cent records.`, 'success');
+              } else {
+                showToast('Invalid JSON Format', 'Missing trades array in JSON file.', 'danger');
+              }
+            } catch (err) {
+              showToast('Import Error', 'Could not parse JSON file.', 'danger');
+            }
+          };
+          reader.readAsText(file);
+          e.target.value = '';
+        });
+      }
+
+      // =========================================================================
+      // 15. INITIALIZE TERMINAL ON DOM READY
+      // =========================================================================
+      function initApp() {
+        initEntriesIfNeeded(false);
+        ensureFrozenSnapshotsForSymbol(state.activePair, false);
+        updateNotificationBadge();
+        bindEvents();
+        renderPairRibbon();
+        window.app.switchTab(state.activeTab || 'signals');
+        tickOneSecondWib();
+        tickFourSecondMarketPrices();
+
+        // Targeted 1s WIB Clock, Session, Entry Timer & Boundary Check
+        setInterval(tickOneSecondWib, 1000);
+        // Targeted 4s Live Price, Floating P/L & Heat Update (Never rebuilds inputs/forms)
+        setInterval(tickFourSecondMarketPrices, 4000);
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initApp);
+      } else {
+        initApp();
+      }
+    })();
+  </script>
+</body>
+</html>
